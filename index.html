@@ -273,6 +273,29 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
     font-size: 16px !important;
   }
 
+
+  /* ===== ROUE ÉMOTIONS MULTI-ENTRÉES ===== */
+  .emotion-wheel{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:.5rem}
+  .emo-big-btn{background:var(--surface2);border:2px solid rgba(255,255,255,.06);border-radius:14px;padding:.65rem .2rem;text-align:center;cursor:pointer;transition:var(--tr);position:relative}
+  .emo-big-btn:hover{transform:translateY(-3px);border-color:rgba(200,169,106,.3)}
+  .emo-big-btn.selected{border-color:var(--gold);background:rgba(200,169,106,.12);transform:translateY(-3px);box-shadow:0 4px 16px rgba(200,169,106,.2)}
+  .emo-big-icon{font-size:1.8rem;display:block;margin-bottom:4px;line-height:1}
+  .emo-big-label{font-size:10px;color:var(--text2);letter-spacing:.02em}
+  .emo-big-btn.selected .emo-big-label{color:var(--gold-light)}
+  /* Timeline journée */
+  .emo-timeline-item{display:flex;align-items:center;gap:10px;padding:.5rem .6rem;background:var(--surface2);border-radius:var(--rsm);margin-bottom:6px;position:relative}
+  .emo-tl-time{font-size:11px;color:var(--text3);min-width:42px;font-variant-numeric:tabular-nums}
+  .emo-tl-icon{font-size:1.2rem;line-height:1}
+  .emo-tl-name{font-size:12px;color:var(--text2);flex:1}
+  .emo-tl-vibe{font-size:11px;font-weight:500;min-width:34px;text-align:right}
+  .emo-tl-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;line-height:1}
+  .emo-tl-del:hover{color:var(--danger)}
+  /* Moyenne journée */
+  .emo-avg-bar{display:flex;align-items:center;gap:10px;padding:.75rem;background:linear-gradient(135deg,rgba(200,169,106,.08),rgba(155,114,207,.06));border:1px solid rgba(200,169,106,.15);border-radius:var(--rsm);margin-top:.5rem}
+  .emo-avg-num{font-family:"Cormorant Garamond",serif;font-size:2rem;font-weight:300;color:var(--gold);min-width:52px;text-align:center;line-height:1}
+  .emo-avg-label{font-size:12px;color:var(--text2);line-height:1.5}
+  .emo-avg-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
 </style>
 </head>
 <body>
@@ -369,33 +392,46 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
       </div>
     </div>
 
-    <!-- Émotion -->
-    <div class="card">
-      <div class="card-title">💫 Comment te sens-tu ?</div>
-      <div class="emotion-grid">
-        <div class="emotion-btn" data-emotion="Joyeux" data-vibe="85"><span class="emo-icon">😄</span>Joyeux</div>
-        <div class="emotion-btn" data-emotion="En paix" data-vibe="90"><span class="emo-icon">😌</span>En paix</div>
-        <div class="emotion-btn" data-emotion="Reconnaissant" data-vibe="88"><span class="emo-icon">🙏</span>Reconnaissant</div>
-        <div class="emotion-btn" data-emotion="Motivé" data-vibe="80"><span class="emo-icon">🔥</span>Motivé</div>
-        <div class="emotion-btn" data-emotion="Anxieux" data-vibe="35"><span class="emo-icon">😰</span>Anxieux</div>
-        <div class="emotion-btn" data-emotion="Triste" data-vibe="25"><span class="emo-icon">😢</span>Triste</div>
-        <div class="emotion-btn" data-emotion="Fatigué" data-vibe="30"><span class="emo-icon">😴</span>Fatigué</div>
-        <div class="emotion-btn" data-emotion="En colère" data-vibe="20"><span class="emo-icon">😤</span>En colère</div>
+    <!-- Émotion — multi-entrées journée -->
+    <div class="card" id="emotion-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+        <div class="card-title" style="margin-bottom:0">💫 Comment te sens-tu ?</div>
+        <div id="emo-time-badge" style="font-size:11px;color:var(--text3);background:var(--surface2);padding:3px 10px;border-radius:99px"></div>
       </div>
-      <div class="vibe-meter">
+
+      <!-- Roue émoji -->
+      <div class="emotion-wheel" id="emotion-wheel">
+        <div class="emo-big-btn" data-emotion="Joyeux" data-vibe="85"><div class="emo-big-icon">😄</div><div class="emo-big-label">Joyeux</div></div>
+        <div class="emo-big-btn" data-emotion="En paix" data-vibe="90"><div class="emo-big-icon">😌</div><div class="emo-big-label">En paix</div></div>
+        <div class="emo-big-btn" data-emotion="Reconnaissant" data-vibe="88"><div class="emo-big-icon">🙏</div><div class="emo-big-label">Reconnaissant</div></div>
+        <div class="emo-big-btn" data-emotion="Motivé" data-vibe="80"><div class="emo-big-icon">🔥</div><div class="emo-big-label">Motivé</div></div>
+        <div class="emo-big-btn" data-emotion="Anxieux" data-vibe="35"><div class="emo-big-icon">😰</div><div class="emo-big-label">Anxieux</div></div>
+        <div class="emo-big-btn" data-emotion="Triste" data-vibe="25"><div class="emo-big-icon">😢</div><div class="emo-big-label">Triste</div></div>
+        <div class="emo-big-btn" data-emotion="Fatigué" data-vibe="30"><div class="emo-big-icon">😴</div><div class="emo-big-label">Fatigué</div></div>
+        <div class="emo-big-btn" data-emotion="En colère" data-vibe="20"><div class="emo-big-icon">😤</div><div class="emo-big-label">En colère</div></div>
+      </div>
+
+      <div class="vibe-meter" style="margin-top:.75rem">
         <div class="vibe-label"><span>Taux vibratoire</span><span id="vibe-num">50</span>/100</div>
         <input type="range" min="0" max="100" value="50" id="vibe-slider">
         <div class="vibe-desc" id="vibe-desc">Ajuste selon ton ressenti profond</div>
       </div>
-      <button class="btn btn-primary btn-full" onclick="saveEmotion()">Enregistrer & Recevoir un conseil ✦</button>
 
-      <!-- Conseil aléatoire -->
+      <button class="btn btn-primary btn-full" onclick="saveEmotion()" style="margin-top:.75rem">Enregistrer ce moment ✦</button>
+
       <div id="conseil-box" style="display:none;margin-top:1rem">
         <div class="conseil-tag">Guidance du moment</div>
         <div class="conseil-text" id="conseil-text" style="margin-top:.5rem"></div>
       </div>
 
-      <!-- Historique 5 derniers jours -->
+      <div class="section-divider" style="margin-top:1.25rem">Ma journée — <span id="emo-count-label">0 entrée</span></div>
+      <div id="emotion-today-timeline"></div>
+      <div id="emotion-today-avg"></div>
+      <div id="daily-univers-msg" style="display:none;margin-top:.75rem">
+        <div class="conseil-tag" style="background:rgba(200,169,106,.15);color:var(--gold)">Bilan de ta journée ✦</div>
+        <div class="conseil-text" id="daily-univers-text" style="margin-top:.5rem"></div>
+      </div>
+
       <div class="section-divider" style="margin-top:1rem">5 derniers jours</div>
       <div id="emotion-history"></div>
     </div>
@@ -726,7 +762,7 @@ const S={get:(k)=>{try{return JSON.parse(localStorage.getItem('ame2_'+k))}catch(
 let state={
   xp:S.def('xp',0),streak:S.def('streak',0),lastLogin:S.def('lastLogin',''),
   emotion:S.def('emotion',null),vibe:S.def('vibe',50),
-  emotionLog:S.def('emotionLog',[]),   // [{date,emotion,vibe}]
+  emotionLog:S.def('emotionLog',[]),   // [{date,emotion,vibe,time,ts}] — multiple per day
   gratitudes:S.def('gratitudes',[]),    // [{date,text}]
   objectifs:S.def('objectifs',[]),
   meds:S.def('meds',[]),
@@ -1249,12 +1285,13 @@ function init(){
   save();
   renderAll();
   updateXPBar();
-  const dn=new Date();
-  document.getElementById('today-date').textContent=dn.toLocaleDateString('fr-CA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const dn=getNowEST();
+  document.getElementById('today-date').textContent=dn.toLocaleDateString('fr-CA',{weekday:'long',year:'numeric',month:'long',day:'numeric',timeZone:'America/Toronto'});
   // Accord du jour
   const accords=["Aujourd'hui, chaque parole sera porteuse d'amour et de vérité.","Aujourd'hui, rien de ce que les autres font n'est à cause de moi. Je reste centré.","Aujourd'hui, je pose des questions au lieu de supposer. Je communique avec ouverture.","Aujourd'hui, je fais de mon mieux — pas plus, pas moins. C'est suffisant.","Aujourd'hui, j'écoute avec mon cœur ouvert et je questionne avec amour."];
   document.getElementById('accord-du-jour').textContent=accords[dn.getDay()%5];
   setupTimerTags();setupSportTags();renderPrayer();renderVerse();renderMorning();
+  updateTimeBadge();renderEmotionToday();
   newDonIdea();
   // Restore vibe slider
   document.getElementById('vibe-slider').value=state.vibe;
@@ -1287,22 +1324,46 @@ function renderAll(){
   document.getElementById('streak-count').textContent=state.streak;
   renderGratitudes();renderObjectifs();renderMeds();renderAddictions();
   renderPassions();renderSpheres();renderStats();renderRappels();
-  renderEmotionHistory();renderGratitudeHistory();renderVisuHistory();
+  renderEmotionToday();renderEmotionHistory();renderGratitudeHistory();renderVisuHistory();
   renderMeditationHistory();renderAccordHistory();renderAlcoholTracker();
   renderNutrition();renderSphereHistory();updateAliments(state.emotion);
   renderUnivers();renderPrieres();
 }
 
 // ===== ÉMOTION =====
-document.querySelectorAll('.emotion-btn').forEach(btn=>{
+// Fuseau horaire EST (UTC-5)
+function getNowEST(){
+  const now=new Date();
+  const est=new Date(now.toLocaleString('en-US',{timeZone:'America/Toronto'}));
+  return est;
+}
+function getTodayEST(){
+  const est=getNowEST();
+  const y=est.getFullYear(),m=String(est.getMonth()+1).padStart(2,'0'),d=String(est.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+function getTimeEST(){
+  const est=getNowEST();
+  return est.toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit',hour12:false});
+}
+
+// Mettre à jour le badge heure
+function updateTimeBadge(){
+  const el=document.getElementById('emo-time-badge');
+  if(el) el.textContent=getTimeEST()+' EST';
+}
+setInterval(updateTimeBadge,30000);
+
+// Boutons émotion
+document.querySelectorAll('.emo-big-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    document.querySelectorAll('.emotion-btn').forEach(b=>b.classList.remove('selected'));
+    document.querySelectorAll('.emo-big-btn').forEach(b=>b.classList.remove('selected'));
     btn.classList.add('selected');
     state.emotion=btn.dataset.emotion;
     state.vibe=parseInt(btn.dataset.vibe);
     document.getElementById('vibe-slider').value=state.vibe;
     updateVibeDesc(state.vibe);
-    updateAliments(state.emotion);save();
+    updateAliments(state.emotion);
   });
 });
 document.getElementById('vibe-slider').addEventListener('input',e=>{
@@ -1316,34 +1377,136 @@ function updateVibeDesc(v){
   document.getElementById('vibe-desc').textContent=r?r[2]:'';
 }
 
+// Emoji map
+const EMO_ICONS={Joyeux:'😄','En paix':'😌',Reconnaissant:'🙏',Motivé:'🔥',Anxieux:'😰',Triste:'😢',Fatigué:'😴','En colère':'😤'};
+
+function vibeColor(v){
+  if(v>=75)return'var(--green)';
+  if(v>=55)return'var(--teal)';
+  if(v>=40)return'var(--amber)';
+  return'var(--danger)';
+}
+
 function saveEmotion(){
-  if(!state.emotion){showReward('Choisis d\'abord une émotion');return;}
-  // Log émotion
-  const today=new Date().toISOString().split('T')[0];
-  state.emotionLog=state.emotionLog.filter(e=>e.date!==today);
-  state.emotionLog.push({date:today,emotion:state.emotion,vibe:state.vibe});
-  if(state.emotionLog.length>30)state.emotionLog=state.emotionLog.slice(-30);
-  addXP(15,'Émotion enregistrée +15 XP');
+  if(!state.emotion){showReward('Choisis une émotion');return;}
+  const today=getTodayEST();
+  const time=getTimeEST();
+  const ts=Date.now();
+  // Ajouter l'entrée (plusieurs par jour permises)
+  state.emotionLog.push({date:today,emotion:state.emotion,vibe:state.vibe,time,ts});
+  // Garder 200 entrées max
+  if(state.emotionLog.length>200)state.emotionLog=state.emotionLog.slice(-200);
+  addXP(10,'Moment enregistré +10 XP');
   // Conseil aléatoire
   const pool=CONSEILS[state.emotion]||CONSEILS['En paix'];
   const conseil=pool[Math.floor(Math.random()*pool.length)];
   document.getElementById('conseil-box').style.display='block';
   document.getElementById('conseil-text').textContent=conseil;
   updateAliments(state.emotion);
-  renderEmotionHistory();save();
+  renderEmotionToday();
+  renderEmotionHistory();
+  save();
+  // Désélectionner après enregistrement
+  setTimeout(()=>{
+    document.querySelectorAll('.emo-big-btn').forEach(b=>b.classList.remove('selected'));
+  },800);
+}
+
+function deleteEmotionEntry(ts){
+  state.emotionLog=state.emotionLog.filter(e=>e.ts!==ts);
+  renderEmotionToday();
+  renderEmotionHistory();
+  save();
+}
+
+function renderEmotionToday(){
+  const today=getTodayEST();
+  const todayEntries=state.emotionLog.filter(e=>e.date===today).sort((a,b)=>a.ts-b.ts);
+  const tl=document.getElementById('emotion-today-timeline');
+  const avgEl=document.getElementById('emotion-today-avg');
+  const countEl=document.getElementById('emo-count-label');
+  const univEl=document.getElementById('daily-univers-msg');
+  if(!tl)return;
+
+  // Mettre à jour compteur
+  if(countEl){
+    const n=todayEntries.length;
+    countEl.textContent=n===0?'aucune entrée':n===1?'1 entrée':`${n} entrées`;
+  }
+
+  if(!todayEntries.length){
+    tl.innerHTML='<div style="font-size:12px;color:var(--text3);padding:.5rem 0;font-style:italic">Enregistre ton premier moment de la journée ✦</div>';
+    if(avgEl)avgEl.innerHTML='';
+    return;
+  }
+
+  // Timeline
+  tl.innerHTML=todayEntries.slice().reverse().map(e=>{
+    const icon=EMO_ICONS[e.emotion]||'💫';
+    const col=vibeColor(e.vibe);
+    return `<div class="emo-timeline-item">
+      <span class="emo-tl-time">${e.time||''}</span>
+      <span class="emo-tl-icon">${icon}</span>
+      <span class="emo-tl-name">${e.emotion}</span>
+      <span class="emo-tl-vibe" style="color:${col}">${e.vibe}</span>
+      <button class="emo-tl-del" onclick="deleteEmotionEntry(${e.ts})" title="Supprimer">×</button>
+    </div>`;
+  }).join('');
+
+  // Moyenne
+  const avg=Math.round(todayEntries.reduce((a,b)=>a+b.vibe,0)/todayEntries.length);
+  const avgColor=vibeColor(avg);
+  const descs=[[0,20,'Journée difficile'],[20,40,'Journée éprouvante'],[40,55,'Journée neutre'],[55,70,'Bonne journée'],[70,85,'Excellente journée'],[85,101,'Journée lumineuse ✦']];
+  const desc=(descs.find(([a,b])=>avg>=a&&avg<b)||descs[descs.length-1])[2];
+  const dominantEmo=todayEntries.reduce((acc,e)=>{acc[e.emotion]=(acc[e.emotion]||0)+1;return acc;},{});
+  const topEmo=Object.entries(dominantEmo).sort((a,b)=>b[1]-a[1])[0][0];
+  const topIcon=EMO_ICONS[topEmo]||'💫';
+
+  if(avgEl){
+    avgEl.innerHTML=`<div class="emo-avg-bar">
+      <div class="emo-avg-num" style="color:${avgColor}">${avg}</div>
+      <div>
+        <div class="emo-avg-label"><strong style="color:var(--text)">${desc}</strong> ${topIcon}</div>
+        <div class="emo-avg-sub">Moyenne de ${todayEntries.length} moment${todayEntries.length>1?'s':''} · Émotion dominante : ${topEmo}</div>
+      </div>
+    </div>`;
+  }
+
+  // Message univers si 22h EST ou plus
+  const estHour=getNowEST().getHours();
+  if(estHour>=22&&univEl){
+    const msgIdx=avg>70?Math.floor(Math.random()*40):avg>40?40+Math.floor(Math.random()*80):120+Math.floor(Math.random()*80);
+    univEl.style.display='block';
+    const msgEl=document.getElementById('daily-univers-text');
+    if(msgEl&&!msgEl.textContent){
+      msgEl.textContent=UNIVERS[msgIdx%UNIVERS.length];
+    }
+  }
 }
 
 function renderEmotionHistory(){
   const el=document.getElementById('emotion-history');
   if(!el)return;
   const last5=getLast5Days();
+  const today=getTodayEST();
   const html=last5.map(d=>{
-    const entry=state.emotionLog.find(e=>e.date===d);
+    const entries=state.emotionLog.filter(e=>e.date===d);
     const label=new Date(d+'T12:00').toLocaleDateString('fr-CA',{weekday:'short',day:'numeric'});
-    if(!entry)return`<div class="emo-day-row"><div class="emo-day-label">${label}</div><div style="font-size:11px;color:var(--text3)">—</div></div>`;
-    return`<div class="emo-day-row"><div class="emo-day-label">${label}</div><div class="emo-day-badge">${entry.emotion}</div><div class="emo-day-vibe">${entry.vibe}/100</div></div>`;
+    if(!entries.length){
+      return`<div class="emo-day-row"><div class="emo-day-label">${label}</div><div style="font-size:11px;color:var(--text3)">—</div></div>`;
+    }
+    const avg=Math.round(entries.reduce((a,b)=>a+b.vibe,0)/entries.length);
+    const col=vibeColor(avg);
+    const topEmo=Object.entries(entries.reduce((acc,e)=>{acc[e.emotion]=(acc[e.emotion]||0)+1;return acc;},{})).sort((a,b)=>b[1]-a[1])[0][0];
+    const icon=EMO_ICONS[topEmo]||'💫';
+    return`<div class="emo-day-row">
+      <div class="emo-day-label">${label}</div>
+      <div class="emo-day-badge">${icon} ${topEmo}</div>
+      <div style="font-size:11px;font-weight:500;color:${col}">${avg}/100</div>
+      <div style="font-size:10px;color:var(--text3);margin-left:2px">${entries.length}×</div>
+    </div>`;
   }).join('');
-  el.innerHTML=html||'<div style="font-size:12px;color:var(--text3)">Pas encore de données</div>';
+  el.innerHTML=html;
 }
 
 // ===== GRATITUDE =====
@@ -1384,7 +1547,12 @@ function renderGratitudeHistory(){
 }
 
 function getLast5Days(){
-  return Array.from({length:5},(_,i)=>{const d=new Date(Date.now()-i*86400000);return d.toISOString().split('T')[0]}).reverse();
+  return Array.from({length:5},(_,i)=>{
+    const d=new Date(Date.now()-i*86400000);
+    const est=new Date(d.toLocaleString('en-US',{timeZone:'America/Toronto'}));
+    const y=est.getFullYear(),m=String(est.getMonth()+1).padStart(2,'0'),dd=String(est.getDate()).padStart(2,'0');
+    return `${y}-${m}-${dd}`;
+  }).reverse();
 }
 
 // ===== OBJECTIFS =====
@@ -2054,6 +2222,18 @@ window._fbOnLogout=()=>{
 
 // Auto-sync toutes les 3 minutes si connecté
 setInterval(()=>{ if(window._fbUser) syncToCloud(); }, 180000);
+
+// Vérifier bilan 22h chaque minute
+setInterval(()=>{
+  const h=getNowEST().getHours();
+  if(h>=22){
+    const univEl=document.getElementById('daily-univers-msg');
+    const msgEl=document.getElementById('daily-univers-text');
+    if(univEl&&msgEl&&!msgEl.textContent){
+      renderEmotionToday();
+    }
+  }
+},60000);
 
 
 window.addEventListener('load',()=>{
