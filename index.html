@@ -540,29 +540,41 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
       </div>
     </div>
 
-    <!-- Méditation avec historique 30 jours -->
+    <!-- Méditation avec enregistrement et objectif hebdomadaire -->
     <div class="card">
       <div class="card-title">🧘 Méditation</div>
-      <div class="timer-circle" onclick="toggleTimer()" id="timer-circle-wrap">
-        <svg><circle id="timer-circle" cx="72" cy="72" r="70" stroke-dasharray="440" stroke-dashoffset="440"/></svg>
-        <div class="timer-time" id="timer-display">5:00</div>
-      </div>
-      <div style="text-align:center;margin-bottom:.75rem">
-        <div class="tag-sel" style="justify-content:center">
-          <div class="tag-pill selected" data-min="5">5 min</div>
-          <div class="tag-pill" data-min="10">10 min</div>
-          <div class="tag-pill" data-min="20">20 min</div>
+
+      <!-- Objectif hebdomadaire -->
+      <div style="background:var(--surface2);border-radius:var(--rsm);padding:.85rem;margin-bottom:1rem;border:1px solid rgba(78,205,196,.15)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+          <div style="font-size:12px;color:var(--text3);letter-spacing:.04em">OBJECTIF DE LA SEMAINE</div>
+          <select id="med-objectif-select" onchange="saveMedObjectif()" style="width:auto;font-size:12px;padding:.3rem .6rem;background:var(--surface);border-color:rgba(78,205,196,.25);color:var(--teal)">
+            <option value="1">1 séance</option>
+            <option value="2">2 séances</option>
+            <option value="3" selected>3 séances</option>
+            <option value="4">4 séances</option>
+            <option value="5">5 séances</option>
+            <option value="7">7 séances</option>
+          </select>
         </div>
-        <!-- Alarme -->
-        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.5rem">
-          <span style="font-size:12px;color:var(--text3)">🔔 Alarme rappel :</span>
-          <input type="time" id="med-alarm-time" style="width:110px;font-size:12px;padding:.4rem .6rem">
-          <button class="btn btn-ghost btn-sm" onclick="setMedAlarm()">Activer</button>
+        <div id="med-objectif-progress-bar" style="height:6px;background:var(--surface);border-radius:99px;overflow:hidden;margin-bottom:.4rem">
+          <div id="med-objectif-fill" style="height:100%;background:linear-gradient(90deg,var(--teal),var(--violet));border-radius:99px;transition:width .8s ease;width:0%"></div>
         </div>
-        <div id="alarm-status" style="font-size:11px;color:var(--text3);margin-top:4px"></div>
+        <div id="med-objectif-label" style="font-size:11px;color:var(--text3)">0 / 3 séances cette semaine</div>
       </div>
-      <div style="font-size:12px;color:var(--text3);text-align:center;font-style:italic;line-height:1.6" id="med-guide">Ferme les yeux. Respire doucement. Tu es en sécurité.</div>
-      <div class="section-divider" style="margin-top:1rem">Méditations — 30 derniers jours</div>
+
+      <!-- Enregistrer une séance -->
+      <div style="font-size:12px;color:var(--text3);margin-bottom:.6rem;letter-spacing:.04em">ENREGISTRER UNE SÉANCE</div>
+      <div class="tag-sel" style="justify-content:flex-start;margin-bottom:.85rem">
+        <div class="tag-pill selected" data-med-min="5">5 min</div>
+        <div class="tag-pill" data-med-min="10">10 min</div>
+        <div class="tag-pill" data-med-min="15">15 min</div>
+        <div class="tag-pill" data-med-min="30">30 min</div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="logMeditation()" style="margin-bottom:.5rem">✦ Enregistrer cette méditation</button>
+      <div id="med-log-feedback" style="font-size:11px;color:var(--teal);text-align:center;min-height:16px;margin-bottom:.75rem"></div>
+
+      <div class="section-divider">Méditations — 30 derniers jours</div>
       <div id="meditation-history"></div>
     </div>
   </div>
@@ -784,7 +796,8 @@ let state={
   spheres:S.def('spheres',{Santé:7,Relations:6,Travail:5,Spirituel:4,Finances:6,Loisirs:8}),
   sphereLog:S.def('sphereLog',[]),      // [{date,spheres:{}}]
   visuList:S.def('visuList',[]),        // [{date,text}]
-  meditationLog:S.def('meditationLog',[]), // [{date,mins}]
+  meditationLog:S.def('meditationLog',[]), // [{date,mins,time,ts}]
+  medObjectif:S.def('medObjectif',3),
   accordPratiqueLog:S.def('accordPratiqueLog',[]), // [{date,text}]
   alcoholLog:S.def('alcoholLog',{}),    // {YYYY-MM-DD: count}
   waterLog:S.def('waterLog',{}),       // {YYYY-MM-DD: count}
@@ -1304,7 +1317,7 @@ function init(){
   // Accord du jour
   const accords=["Aujourd'hui, chaque parole sera porteuse d'amour et de vérité.","Aujourd'hui, rien de ce que les autres font n'est à cause de moi. Je reste centré.","Aujourd'hui, je pose des questions au lieu de supposer. Je communique avec ouverture.","Aujourd'hui, je fais de mon mieux — pas plus, pas moins. C'est suffisant.","Aujourd'hui, j'écoute avec mon cœur ouvert et je questionne avec amour."];
   document.getElementById('accord-du-jour').textContent=accords[dn.getDay()%5];
-  setupTimerTags();setupSportTags();renderPrayer();renderVerse();renderMorning();
+  setupMedTags();setupSportTags();renderPrayer();renderVerse();renderMorning();
   updateTimeBadge();renderEmotionToday();
   newDonIdea();
   // Restore vibe slider
@@ -1316,11 +1329,10 @@ function init(){
       if(b.dataset.emotion===state.emotion)b.classList.add('selected');
     });
   }
-  // Alarm restore
-  if(state.medAlarm){
-    document.getElementById('med-alarm-time').value=state.medAlarm;
-    document.getElementById('alarm-status').textContent='🔔 Alarme activée : '+state.medAlarm;
-  }
+  // Objectif méditation restore
+  const medObjSel=document.getElementById('med-objectif-select');
+  if(medObjSel)medObjSel.value=state.medObjectif||3;
+  renderMedObjectifProgress();
   // Splash
   setTimeout(()=>{
     const sp=document.getElementById('splash');
@@ -1339,7 +1351,7 @@ function renderAll(){
   renderGratitudes();renderObjectifs();renderMeds();renderAddictions();
   renderPassions();renderSpheres();renderStats();renderRappels();
   renderEmotionToday();renderEmotionHistory();renderGratitudeHistory();renderVisuHistory();
-  renderMeditationHistory();renderAccordHistory();renderAccordToday();renderAlcoholTracker();
+  renderMeditationHistory();renderMedObjectifProgress();renderAccordHistory();renderAccordToday();renderAlcoholTracker();
   renderNutrition();renderSphereHistory();renderSphereTodayAvg();updateAliments(state.emotion);
   renderUnivers();renderPrieres();renderPriereToday();
   // Update sphere entries count
@@ -2119,97 +2131,142 @@ function renderVisuHistory(){
   }).join('');
 }
 
-// ===== MÉDITATION HISTORIQUE =====
-let timerInterval=null,timerRunning=false,timerSeconds=300,timerTotal=300;
-function setupTimerTags(){
-  document.querySelectorAll('[data-min]').forEach(tag=>{
+// ===== MÉDITATION — ENREGISTREMENT =====
+let selectedMedMins=5;
+
+function setupMedTags(){
+  document.querySelectorAll('[data-med-min]').forEach(tag=>{
     tag.addEventListener('click',()=>{
-      document.querySelectorAll('[data-min]').forEach(t=>t.classList.remove('selected'));
+      document.querySelectorAll('[data-med-min]').forEach(t=>t.classList.remove('selected'));
       tag.classList.add('selected');
-      timerTotal=parseInt(tag.dataset.min)*60;timerSeconds=timerTotal;
-      if(timerInterval){clearInterval(timerInterval);timerRunning=false;}
-      updateTimerDisplay();
+      selectedMedMins=parseInt(tag.dataset.medMin);
     });
   });
 }
-// Cloche de méditation via Web Audio API
-function playMeditationBell(){
-  try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    // 3 coups de cloche espacés
-    [0, 1.8, 3.6].forEach(delay=>{
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      // Son de cloche tibétaine ~528 Hz
-      osc.type='sine';
-      osc.frequency.setValueAtTime(528, ctx.currentTime+delay);
-      osc.frequency.exponentialRampToValueAtTime(264, ctx.currentTime+delay+2);
-      gain.gain.setValueAtTime(0, ctx.currentTime+delay);
-      gain.gain.linearRampToValueAtTime(0.7, ctx.currentTime+delay+0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+delay+2.5);
-      osc.start(ctx.currentTime+delay);
-      osc.stop(ctx.currentTime+delay+2.5);
-      // 2e harmonique pour richesse du son
-      const osc2=ctx.createOscillator();
-      const gain2=ctx.createGain();
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-      osc2.type='sine';
-      osc2.frequency.setValueAtTime(1056, ctx.currentTime+delay);
-      osc2.frequency.exponentialRampToValueAtTime(528, ctx.currentTime+delay+2);
-      gain2.gain.setValueAtTime(0, ctx.currentTime+delay);
-      gain2.gain.linearRampToValueAtTime(0.3, ctx.currentTime+delay+0.01);
-      gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+delay+2);
-      osc2.start(ctx.currentTime+delay);
-      osc2.stop(ctx.currentTime+delay+2);
-    });
-  }catch(e){console.warn('Audio non disponible',e);}
+
+function logMeditation(){
+  const today=getTodayEST();
+  const time=getTimeEST();
+  state.meditationLog.push({date:today,mins:selectedMedMins,time,ts:Date.now()});
+  if(state.meditationLog.length>90)state.meditationLog=state.meditationLog.slice(-90);
+  const xp=selectedMedMins>=30?40:selectedMedMins>=15?30:selectedMedMins>=10?25:20;
+  addXP(xp,`Méditation ${selectedMedMins} min ! +${xp} XP`);
+  const fb=document.getElementById('med-log-feedback');
+  if(fb){fb.textContent=`✦ ${selectedMedMins} minutes enregistrées`;setTimeout(()=>fb.textContent='',3000);}
+  renderMeditationHistory();
+  renderMedObjectifProgress();
+  save();
 }
 
-function toggleTimer(){
-  if(timerRunning){clearInterval(timerInterval);timerRunning=false;}
-  else{
-    if(timerSeconds<=0)timerSeconds=timerTotal;
-    timerRunning=true;
-    // 1 coup au départ
-    playMeditationBell();
-    timerInterval=setInterval(()=>{
-      timerSeconds--;updateTimerDisplay();
-      if(timerSeconds<=0){
-        clearInterval(timerInterval);timerRunning=false;
-        // 3 coups à la fin
-        playMeditationBell();
-        const mins=Math.round(timerTotal/60);
-        const today=getTodayEST();
-        state.meditationLog.push({date:today,mins});
-        if(state.meditationLog.length>60)state.meditationLog=state.meditationLog.slice(-60);
-        addXP(20,'Méditation complétée ! +20 XP');
-        renderMeditationHistory();save();
-      }
-    },1000);
+function saveMedObjectif(){
+  const sel=document.getElementById('med-objectif-select');
+  if(sel)state.medObjectif=parseInt(sel.value);
+  renderMedObjectifProgress();
+  save();
+}
+
+function getMedWeekDates(){
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(Date.now()-i*86400000);
+    const est=new Date(d.toLocaleString('en-US',{timeZone:'America/Toronto'}));
+    const y=est.getFullYear(),m=String(est.getMonth()+1).padStart(2,'0'),dd=String(est.getDate()).padStart(2,'0');
+    days.push(`${y}-${m}-${dd}`);
+  }
+  return days;
+}
+
+function renderMedObjectifProgress(){
+  const objectif=state.medObjectif||3;
+  const sel=document.getElementById('med-objectif-select');
+  if(sel)sel.value=objectif;
+  const weekDates=getMedWeekDates();
+  // Compter les jours distincts avec au moins 1 séance cette semaine
+  const daysWithMed=weekDates.filter(d=>state.meditationLog.some(m=>m.date===d)).length;
+  const pct=Math.min(daysWithMed/objectif*100,100);
+  const fill=document.getElementById('med-objectif-fill');
+  const label=document.getElementById('med-objectif-label');
+  const bar=document.getElementById('med-objectif-progress-bar');
+  if(fill)fill.style.width=pct+'%';
+  if(bar)bar.style.borderColor=daysWithMed>=objectif?'rgba(107,203,119,.3)':'rgba(78,205,196,.15)';
+  if(label){
+    const done=daysWithMed>=objectif;
+    label.innerHTML=done
+      ?`<span style="color:var(--green)">✅ Objectif atteint ! ${daysWithMed} / ${objectif} jours cette semaine</span>`
+      :`${daysWithMed} / ${objectif} jours avec méditation cette semaine`;
   }
 }
-function updateTimerDisplay(){
-  const m=Math.floor(timerSeconds/60),s=timerSeconds%60;
-  document.getElementById('timer-display').textContent=m+':'+(s<10?'0':'')+s;
-  const pct=1-timerSeconds/timerTotal;
-  document.getElementById('timer-circle').setAttribute('stroke-dashoffset',440-440*pct);
-}
+
 function renderMeditationHistory(){
   const el=document.getElementById('meditation-history');
   if(!el)return;
+  // Afficher les 30 dernières entrées, groupées par date
   const last30=state.meditationLog.slice(-30).slice().reverse();
-  if(!last30.length){el.innerHTML='<div style="font-size:12px;color:var(--text3)">Aucune méditation enregistrée</div>';return;}
+  if(!last30.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);font-style:italic">Aucune méditation enregistrée</div>';return;}
   const totalMins=last30.reduce((a,b)=>a+b.mins,0);
-  let html=`<div style="font-size:12px;color:var(--text2);margin-bottom:.75rem">Total ce mois : <strong style="color:var(--gold)">${totalMins} minutes</strong> de méditation</div>`;
-  last30.slice(0,10).forEach(m=>{
-    const label=new Date(m.date+'T12:00').toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
-    html+=`<div class="hist-bar-row"><div class="hist-bar-label" style="min-width:75px;font-size:10px">${label}</div><div class="hist-bar-track"><div class="hist-bar-fill" style="width:${Math.min(m.mins/20*100,100)}%;background:var(--teal)"></div></div><div class="hist-bar-val">${m.mins}min</div></div>`;
+  const weekDates=getMedWeekDates();
+  const weekMins=state.meditationLog.filter(m=>weekDates.includes(m.date)).reduce((a,b)=>a+b.mins,0);
+  let html=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.85rem">
+    <div style="flex:1;min-width:110px;padding:.6rem;background:var(--surface2);border-radius:var(--rsm);border:1px solid rgba(255,255,255,.05)">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:2px">CETTE SEMAINE</div>
+      <div style="font-size:16px;font-weight:500;color:var(--teal)">${weekMins} min</div>
+    </div>
+    <div style="flex:1;min-width:110px;padding:.6rem;background:var(--surface2);border-radius:var(--rsm);border:1px solid rgba(255,255,255,.05)">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:2px">30 DERNIERS JOURS</div>
+      <div style="font-size:16px;font-weight:500;color:var(--gold)">${totalMins} min</div>
+    </div>
+  </div>`;
+  // Grouper par date
+  const byDate={};
+  last30.forEach(m=>{if(!byDate[m.date])byDate[m.date]=[];byDate[m.date].push(m);});
+  Object.entries(byDate).slice(0,10).forEach(([d,entries])=>{
+    const label=new Date(d+'T12:00').toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
+    const dayTotal=entries.reduce((a,b)=>a+b.mins,0);
+    const maxBar=60;
+    html+=`<div class="hist-bar-row" style="flex-direction:column;align-items:stretch;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <div style="font-size:11px;color:var(--gold-light)">✦ ${label}</div>
+        <div style="font-size:11px;color:var(--teal);font-weight:500">${dayTotal} min · ${entries.length} séance${entries.length>1?'s':''}</div>
+      </div>
+      ${entries.map(m=>`<div class="hist-bar-row" style="margin-bottom:3px">
+        <div class="hist-bar-label" style="min-width:50px;font-size:10px;color:var(--text3)">${m.time||''}</div>
+        <div class="hist-bar-track"><div class="hist-bar-fill" style="width:${Math.min(m.mins/maxBar*100,100)}%;background:var(--teal)"></div></div>
+        <div class="hist-bar-val" style="min-width:38px;font-size:11px">${m.mins} min</div>
+        <button onclick="deleteMedEntry(${m.ts||0})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0 0 0 4px" title="Supprimer">×</button>
+      </div>`).join('')}
+    </div>`;
   });
   el.innerHTML=html;
 }
+
+function deleteMedEntry(ts){
+  state.meditationLog=state.meditationLog.filter(m=>m.ts!==ts);
+  renderMeditationHistory();
+  renderMedObjectifProgress();
+  save();
+}
+
+// Alarme méditation (conservée)
+function setMedAlarm(){
+  const t=document.getElementById('med-alarm-time');
+  if(!t||!t.value){showReward('Choisis une heure');return;}
+  state.medAlarm=t.value;save();
+  document.getElementById('alarm-status').textContent='🔔 Alarme activée : '+t.value;
+  scheduleAlarm(t.value);
+  addXP(5,'Alarme activée +5 XP');
+}
+function scheduleAlarm(timeStr){
+  const[h,m]=timeStr.split(':').map(Number);
+  const now=new Date();const target=new Date();
+  target.setHours(h,m,0,0);
+  if(target<=now)target.setDate(target.getDate()+1);
+  const delay=target-now;
+  setTimeout(()=>{
+    if(Notification.permission==='granted'){new Notification('ÂME — Méditation',{body:'C\'est l\'heure de ta méditation. Prends un moment pour toi. 🧘',icon:''});}
+    else{alert('🧘 C\'est l\'heure de ta méditation !');}
+  },delay);
+}
+if('Notification' in window&&Notification.permission==='default'){Notification.requestPermission();}
 
 // ===== ACCORD PRATIQUE =====
 function saveAccordPratique(){
