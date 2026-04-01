@@ -37,7 +37,6 @@ window._fb={auth,db,
 onAuthStateChanged(auth,user=>{
   if(user){
     if(!user.emailVerified){
-      // Connecté mais courriel non vérifié — afficher écran de vérification
       window._fbUser=null;
       if(window._fbOnPendingVerification)window._fbOnPendingVerification(user);
     }else{
@@ -374,7 +373,7 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
   </div>
 </div>
 
-
+<!-- Profile dropdown -->
 <div class="profile-dd" id="profile-dd">
   <div class="profile-dd-name" id="dd-name">—</div>
   <div class="profile-dd-email" id="dd-email">—</div>
@@ -829,8 +828,8 @@ const S={get:(k)=>{try{return JSON.parse(localStorage.getItem('ame2_'+k))}catch(
 let state={
   xp:S.def('xp',0),streak:S.def('streak',0),lastLogin:S.def('lastLogin',''),
   emotion:S.def('emotion',null),vibe:S.def('vibe',50),
-  emotionLog:S.def('emotionLog',[]),   // [{date,emotion,vibe,time,ts}] — multiple per day
-  gratitudes:S.def('gratitudes',[]),    // [{date,text}]
+  emotionLog:S.def('emotionLog',[]),
+  gratitudes:S.def('gratitudes',[]),
   objectifs:S.def('objectifs',[]),
   meds:S.def('meds',[]),
   addictions:S.def('addictions',[]),
@@ -838,15 +837,14 @@ let state={
   rappels:S.def('rappels',[]),
   morningDone:S.def('morningDone',[]),
   spheres:S.def('spheres',{Santé:7,Relations:6,Travail:5,Spirituel:4,Finances:6,Loisirs:8}),
-  sphereLog:S.def('sphereLog',[]),      // [{date,spheres:{}}]
-  visuList:S.def('visuList',[]),        // [{date,text}]
-  meditationLog:S.def('meditationLog',[]), // [{date,mins,time,ts}]
+  sphereLog:S.def('sphereLog',[]),
+  visuList:S.def('visuList',[]),
+  meditationLog:S.def('meditationLog',[]),
   medObjectif:S.def('medObjectif',3),
-  accordPratiqueLog:S.def('accordPratiqueLog',[]), // [{date,text}]
-  alcoholLog:S.def('alcoholLog',{}),    // {YYYY-MM-DD: count}
-  waterLog:S.def('waterLog',{}),       // {YYYY-MM-DD: count}
-  accordPratiqueLog:S.def('accordPratiqueLog',[]), // legacy
-  sphereEntries:S.def('sphereEntries',[]), // [{date,time,ts,spheres}]
+  accordPratiqueLog:S.def('accordPratiqueLog',[]),
+  alcoholLog:S.def('alcoholLog',{}),
+  waterLog:S.def('waterLog',{}),
+  sphereEntries:S.def('sphereEntries',[]),
   donIndex:S.def('donIndex',0),
   universIndex:S.def('universIndex',0),
   prierIndex:S.def('prierIndex',0),
@@ -2550,7 +2548,6 @@ async function doLogin(){
   try{
     const cred=await fb.signInWithEmailAndPassword(fb.auth,email,pass);
     if(!cred.user.emailVerified){
-      // Courriel non vérifié — afficher l'écran de vérification
       showVerifyScreen(cred.user);
       setLoading('btn-login',false);
       return;
@@ -2576,9 +2573,7 @@ async function doRegister(){
   try{
     const cred=await fb.createUserWithEmailAndPassword(fb.auth,email,pass);
     await fb.updateProfile(cred.user,{displayName:name});
-    // Envoyer le courriel de vérification
     await fb.sendEmailVerification(cred.user);
-    // Afficher l'écran d'attente de vérification
     showVerifyScreen(cred.user);
     setLoading('btn-register',false);
   }catch(e){
@@ -2630,7 +2625,6 @@ async function checkEmailVerified(){
     await user.reload();
     if(user.emailVerified){
       hideVerifyScreen();
-      // Déclencher manuellement le callback de login
       window._fbUser=user;
       if(window._fbOnLogin)window._fbOnLogin(user);
     }else{
@@ -2687,8 +2681,22 @@ function updateAvatar(user){
 
 // ===== FIREBASE SYNC =====
 
-// Clés à exclure du sync (trop volumineuses ou inutiles dans le cloud)
+// Clés à exclure du sync
 const SYNC_EXCLUDE = ['donUsed'];
+
+// Nettoyer récursivement les undefined (Firestore les rejette)
+function cleanForFirestore(obj){
+  if(Array.isArray(obj)) return obj.map(cleanForFirestore).filter(v=>v!==undefined);
+  if(obj&&typeof obj==='object'){
+    const out={};
+    Object.keys(obj).forEach(k=>{
+      const v=cleanForFirestore(obj[k]);
+      if(v!==undefined)out[k]=v;
+    });
+    return out;
+  }
+  return obj;
+}
 
 // Sauvegarder vers Firestore
 async function syncToCloud(){
@@ -2696,11 +2704,10 @@ async function syncToCloud(){
   if(!fb||!user)return;
   const dot=document.getElementById('sync-dot');
   try{
-    // Filtrer les clés à exclure et nettoyer undefined
     const payload={_uid:user.uid,_updated:Date.now()};
     Object.keys(state).forEach(k=>{
       if(!SYNC_EXCLUDE.includes(k) && state[k]!==undefined){
-        payload[k]=state[k];
+        payload[k]=cleanForFirestore(state[k]);
       }
     });
     await fb.setDoc(fb.doc(fb.db,'users',user.uid), payload, {merge:true});
@@ -2719,14 +2726,11 @@ async function loadFromCloud(user){
     const snap=await fb.getDoc(fb.doc(fb.db,'users',user.uid));
     if(snap.exists()){
       const data=snap.data();
-      // Fusionner les données cloud dans le state local
-      // Priorité au cloud (plus récent)
       Object.keys(state).forEach(k=>{
         if(data[k]!==undefined && !SYNC_EXCLUDE.includes(k)){
           state[k]=data[k];
         }
       });
-      // Mettre à jour localStorage aussi
       Object.keys(state).forEach(k=>S.set(k,state[k]));
       return true;
     }
@@ -2747,33 +2751,27 @@ async function manualSync(){
 
 // ===== AUTH CALLBACKS =====
 window._fbOnLogin=async(user)=>{
-  // Masquer écrans auth et vérification
   document.getElementById('auth-screen').classList.remove('visible');
   hideVerifyScreen();
   updateAvatar(user);
   const dot=document.getElementById('sync-dot');
   if(dot)dot.classList.remove('off');
 
-  // Charger les données du nuage
   const loaded=await loadFromCloud(user);
 
-  // Initialiser ou re-rendre l'app
   if(!window._appInited){
     window._appInited=true;
     init();
-    // XP de bienvenue seulement à la toute première connexion vérifiée
     if(!loaded)addXP(50,'Bienvenue dans ÂME ! +50 XP ✦');
   } else {
     renderAll();
     updateXPBar();
   }
 
-  // Sync initiale pour s'assurer que le compte est à jour
   setTimeout(()=>syncToCloud(), 3000);
 };
 
 window._fbOnPendingVerification=(user)=>{
-  // L'utilisateur est connecté mais le courriel n'est pas vérifié
   showVerifyScreen(user);
 };
 
