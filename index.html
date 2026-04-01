@@ -438,13 +438,15 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
 
     <!-- Gratitude -->
     <div class="card">
-      <div class="card-title">💛 Gratitude du jour</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
+        <div class="card-title" style="margin-bottom:0">💛 Gratitude du jour</div>
+        <div style="font-size:11px;color:var(--text3)" id="grat-count-label">0 gratitude</div>
+      </div>
       <div id="gratitude-list"></div>
-      <div class="flex-row">
-        <input type="text" id="gratitude-input" placeholder="Je suis reconnaissant pour..." style="flex:1">
+      <div class="flex-row" style="margin-top:.5rem">
+        <input type="text" id="gratitude-input" placeholder="Je suis reconnaissant pour..." style="flex:1" onkeydown="if(event.key==='Enter')addGratitude()">
         <button class="btn btn-primary btn-sm" onclick="addGratitude()">+</button>
       </div>
-      <!-- Historique 5 derniers jours -->
       <div id="gratitude-history" style="margin-top:.75rem"></div>
     </div>
 
@@ -452,7 +454,7 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
     <div class="card">
       <div class="card-title">🤲 Donner, c'est recevoir</div>
       <div class="don-card">
-        <div class="don-title">Idée d'aujourd'hui</div>
+        <div class="don-title">Idée d'aujourd&#39;hui</div>
         <div class="don-desc" id="don-idea"></div>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="newDonIdea()">Nouvelle idée 🎲</button>
@@ -476,11 +478,17 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
 
     <!-- Sphères avec historique 15 jours -->
     <div class="card">
-      <div class="card-title">⚖️ Équilibre de vie</div>
-      <div class="card-sub">Évalue chaque sphère de 0 à 10</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
+        <div class="card-title" style="margin-bottom:0">⚖️ Équilibre de vie</div>
+        <div style="font-size:11px;color:var(--text3)" id="sphere-entries-label">0 évaluation aujourd&#39;hui</div>
+      </div>
+      <div class="card-sub" style="margin-top:.25rem">Évalue chaque sphère (plusieurs fois/jour)</div>
       <div class="spheres-grid" id="spheres-grid"></div>
+      <button class="btn btn-primary btn-sm btn-full" onclick="saveSphereEntry()" style="margin-top:.75rem">Enregistrer cette évaluation ✦</button>
       <div class="section-divider" style="margin-top:1rem">Conseil selon ton équilibre</div>
       <div id="sphere-conseil" class="conseil-text" style="margin-top:.5rem;padding:.75rem;background:var(--surface2);border-radius:var(--rsm);font-style:italic;font-size:13px;color:var(--text2)"></div>
+      <div class="section-divider">Moyenne du jour</div>
+      <div id="sphere-today-avg"></div>
       <div class="section-divider">Historique 15 derniers jours</div>
       <div id="sphere-history"></div>
     </div>
@@ -497,8 +505,8 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
   <div class="screen" id="screen-corps">
     <!-- Alcool -->
     <div class="card">
-      <div class="card-title">🍷 Suivi alcool de la semaine</div>
-      <div class="card-sub">Objectif : au moins 2 jours sans alcool par semaine</div>
+      <div class="card-title">🍷 Alcool & 💧 Eau — semaine</div>
+      <div class="card-sub">Objectif : 2 jours sans alcool · 8 verres d'eau/jour</div>
       <div id="alcohol-tracker"></div>
       <div id="alcohol-summary" style="margin-top:.75rem;font-size:13px;color:var(--text2)"></div>
     </div>
@@ -633,13 +641,14 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
       <div class="card-title">✦ L'accord de ta journée</div>
       <div class="conseil-box" style="margin-top:0"><div class="conseil-text" id="accord-du-jour"></div></div>
       <div style="margin-top:1rem">
-        <div class="card-sub">Comment vas-tu appliquer cet accord aujourd'hui ?</div>
+        <div class="card-sub">Comment vas-tu appliquer cet accord aujourd&#39;hui ?</div>
         <textarea id="accord-pratique" placeholder="Décris une situation concrète..."></textarea>
         <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="saveAccordPratique()">Sauvegarder ✦</button>
       </div>
-      <!-- Historique 30 situations -->
       <div class="section-divider" style="margin-top:1rem">30 dernières situations concrètes</div>
       <div id="accord-history"></div>
+      <div class="section-divider" style="margin-top:1rem">Situations d'aujourd&#39;hui</div>
+      <div id="accord-today"></div>
     </div>
   </div>
 
@@ -682,9 +691,11 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
     <div class="card">
       <div class="card-title">💌 Ma prière personnelle</div>
       <div class="card-sub">Parle librement à Dieu — il t'écoute toujours</div>
-      <textarea id="priere-input" placeholder="Seigneur Jésus, aujourd'hui je veux te dire..."></textarea>
+      <textarea id="priere-input" placeholder="Seigneur Jésus, aujourd&#39;hui je veux te dire..."></textarea>
       <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="savePriere()">Offrir cette prière ✦</button>
-      <div class="section-divider" style="margin-top:1rem">Mes prières précédentes</div>
+      <div class="section-divider" style="margin-top:1rem">Prières du jour</div>
+      <div id="priere-today"></div>
+      <div class="section-divider">Prières précédentes</div>
       <div id="priere-history"></div>
     </div>
 
@@ -776,6 +787,9 @@ let state={
   meditationLog:S.def('meditationLog',[]), // [{date,mins}]
   accordPratiqueLog:S.def('accordPratiqueLog',[]), // [{date,text}]
   alcoholLog:S.def('alcoholLog',{}),    // {YYYY-MM-DD: count}
+  waterLog:S.def('waterLog',{}),       // {YYYY-MM-DD: count}
+  accordPratiqueLog:S.def('accordPratiqueLog',[]), // legacy
+  sphereEntries:S.def('sphereEntries',[]), // [{date,time,ts,spheres}]
   donIndex:S.def('donIndex',0),
   universIndex:S.def('universIndex',0),
   prierIndex:S.def('prierIndex',0),
@@ -900,7 +914,7 @@ const DON_IDEAS=[
 "Partagez votre histoire de guérison pour inspirer d'autres.",
 "Offrez de tenir compagnie à quelqu'un lors d'un examen médical.",
 "Créez un groupe WhatsApp de bienveillance dans votre immeuble.",
-"Offrez de prendre des nouvelles chaque semaine d'une personne seule.",
+"Offrez de prendre des nouvelles chaque semaine d’une personne seule.",
 "Faites un geste pour la planète : plantez un arbre.",
 "Partagez une affirmation positive avec votre entourage chaque matin.",
 "Faites don de votre temps pour aider un réfugié à apprendre le français.",
@@ -964,7 +978,7 @@ const UNIVERS=[
 "Chaque pensée de gratitude est une prière qui monte vers le ciel.",
 "Ta vie entière a conspiré pour t'amener à ce moment précis.",
 "L'abondance commence dans le cœur — et ton cœur est immense.",
-"Ce que tu plantes aujourd'hui dans l'amour, tu le récolteras demain.",
+"Ce que tu plantes aujourd&#39;hui dans l'amour, tu le récolteras demain.",
 "Tu as le droit d'avoir de bonnes choses dans ta vie. Toutes les bonnes choses.",
 "L'univers t'a équipé de tout ce dont tu as besoin pour ta mission.",
 "Ta sensibilité est une force, pas une faiblesse.",
@@ -982,7 +996,7 @@ const UNIVERS=[
 "Ce matin est un cadeau. Chaque matin l'est.",
 "Ton âme sait exactement où elle va.",
 "Les défis t'ont rendu plus sage, plus fort, plus ouvert.",
-"Tu mérites d'être aimé exactement comme tu es, aujourd'hui.",
+"Tu mérites d'être aimé exactement comme tu es, aujourd&#39;hui.",
 "L'univers parle à travers la beauté — apprends à la voir partout.",
 "Chaque non reçu te rapproche du oui qui est fait pour toi.",
 "Ta joie est une contribution au bonheur collectif de ce monde.",
@@ -991,7 +1005,7 @@ const UNIVERS=[
 "Chaque moment de paix que tu cultives est un acte révolutionnaire.",
 "Tu as déjà surmonté 100% de tes mauvaises journées. Continue.",
 "L'univers ne fait pas d'erreurs — ta vie entière est parfaitement orchestrée.",
-"Ce que tu traverses aujourd'hui devient la sagesse que tu offres demain.",
+"Ce que tu traverses aujourd&#39;hui devient la sagesse que tu offres demain.",
 "Ton courage inspire des gens que tu ne connais même pas encore.",
 "Tu es une connexion vivante entre le ciel et la terre.",
 "Repose-toi sans culpabilité — l'univers ne cesse jamais de travailler pour toi.",
@@ -1004,7 +1018,7 @@ const UNIVERS=[
 "L'univers a entendu chaque prière silencieuse que tu as faite.",
 "Tu marches sur le bon chemin, même quand tu ne le vois pas.",
 "Chaque moment de doute précède souvent une grande percée.",
-"Tu es béni d'une manière que tu n'as peut-être pas encore reconnue.",
+"Tu es béni d’une manière que tu n'as peut-être pas encore reconnue.",
 "La confiance en la vie est le plus grand cadeau que tu peux te faire.",
 "Tes ancêtres ont prié pour que quelqu'un comme toi existe. C'est toi.",
 "Tu es digne d'amour, de paix, de succès et de joie.",
@@ -1015,9 +1029,9 @@ const UNIVERS=[
 "Chaque acte d'amour que tu poses crée des ondes qui dépassent ce que tu vois.",
 "La vérité de qui tu es est bien plus belle que tes peurs te le font croire.",
 "Tu attires la magie quand tu restes fidèle à toi-même.",
-"Ce qui est difficile aujourd'hui devient demain ta plus grande fierté.",
+"Ce qui est difficile aujourd&#39;hui devient demain ta plus grande fierté.",
 "L'univers aime les audacieux — ose être pleinement toi.",
-"Tu as la permission de te sentir bien, maintenant, aujourd'hui.",
+"Tu as la permission de te sentir bien, maintenant, aujourd&#39;hui.",
 "Tes efforts silencieux sont vus et honorés par l'univers.",
 "Le bonheur que tu cherches est à l'intérieur, pas à l'extérieur.",
 "Chaque respiration est une affirmation que tu es en vie et que c'est bon.",
@@ -1035,7 +1049,7 @@ const UNIVERS=[
 "L'univers n'a créé qu'un seul toi — c'est dire à quel point tu es précieux.",
 "Fais confiance à l'invisible — il travaille pour toi sans relâche.",
 "Ta gratitude est le langage que l'univers comprend le mieux.",
-"Ce que tu plantes dans ton cœur aujourd'hui fleurit dans ta vie demain.",
+"Ce que tu plantes dans ton cœur aujourd&#39;hui fleurit dans ta vie demain.",
 "Tu as tout ce qu'il faut pour créer la vie que tu mérites.",
 "L'univers t'aime trop pour te laisser rester petit.",
 "Chaque matin recommence, et avec lui, toutes les possibilités.",
@@ -1071,7 +1085,7 @@ const UNIVERS=[
 "Tu es sur le point de franchir un seuil important dans ta vie.",
 "La paix n'est pas l'absence de tempête — c'est garder le cap au milieu.",
 "Tu es dans le cœur de l'univers depuis le premier instant.",
-"Aimer ce que tu es aujourd'hui est le plus beau cadeau que tu puisses te faire.",
+"Aimer ce que tu es aujourd&#39;hui est le plus beau cadeau que tu puisses te faire.",
 "L'univers n'a jamais abandonné personne — il n'est pas près de commencer.",
 "Tu es libre. Tu as toujours été libre.",
 "Chaque jour où tu choisis l'espoir, tu choisis l'univers.",
@@ -1095,7 +1109,7 @@ const UNIVERS=[
 "L'univers t'aime avec une tendresse infinie que les mots ne peuvent décrire.",
 "Tu es un être de lumière en apprentissage — et c'est parfaitement correct.",
 "Chaque journée vécue avec intention est une victoire cosmique.",
-"L'univers t'offre aujourd'hui exactement ce dont tu as besoin pour grandir.",
+"L'univers t'offre aujourd&#39;hui exactement ce dont tu as besoin pour grandir.",
 "Tu es aimé, tu es protégé, tu es guidé — en tout temps, en tous lieux.",
 "Ce que tu offres au monde sans calcul te revient décuplé.",
 "L'univers célèbre ta décision de te relever chaque fois que tu tombes.",
@@ -1103,7 +1117,7 @@ const UNIVERS=[
 "L'amour divin qui t'habite est plus fort que tout obstacle.",
 "Tu n'as pas besoin d'être parfait pour mériter l'amour — tu mérites d'être aimé maintenant.",
 "L'univers a hâte de te montrer ce qu'il a préparé pour la suite de ta vie.",
-"Ta présence ici, aujourd'hui, fait partie d'un plan bien plus grand que toi.",
+"Ta présence ici, aujourd&#39;hui, fait partie d'un plan bien plus grand que toi.",
 "Tu es la réponse à une prière que quelqu'un a faite il y a longtemps.",
 "L'univers sourit chaque fois que tu oses être pleinement toi-même.",
 "Ce qui compte n'est pas là où tu en es — mais la direction que tu prends.",
@@ -1120,7 +1134,7 @@ const CONSEILS={
     "Dans cet état de grâce, visualise tes rêves avec intensité. L'attraction est maximale.",
     "La joie est ton état naturel. Ancre-toi dans ce moment présent avec gratitude.",
     "Profite de cette haute vibration pour prendre des décisions importantes avec clarté.",
-    "Ta joie nourrit ceux qui t'entourent. Sois généreux de ta bonne humeur aujourd'hui.",
+    "Ta joie nourrit ceux qui t'entourent. Sois généreux de ta bonne humeur aujourd&#39;hui.",
     "Selon le 1er accord, que ta parole soit impeccable dans cette joie — dis des vérités belles.",
     "Ce bonheur que tu ressens, note-le précieusement pour les jours plus sombres.",
     "Célèbre ce que tu as accompli pour arriver à cette joie. Tu le mérites.",
@@ -1148,20 +1162,20 @@ const CONSEILS={
     "Partage ta gratitude avec quelqu'un qui t'a aidé — un merci sincère change une vie.",
     "Selon le 4e accord, fais de ton mieux pour savourer chaque moment avec plénitude.",
     "La reconnaissance que tu ressens attire encore plus de choses à apprécier demain.",
-    "Transforme ta gratitude en action : fais quelque chose de bien pour quelqu'un aujourd'hui.",
+    "Transforme ta gratitude en action : fais quelque chose de bien pour quelqu'un aujourd&#39;hui.",
     "L'univers voit ton cœur reconnaissant et conspire à t'envoyer encore plus de bonheur."
   ],
   Motivé:[
     "Cette énergie est un cadeau — utilise-la pour avancer sur ton objectif le plus important.",
     "La motivation est une fenêtre. Passe-y avant qu'elle se ferme en agissant maintenant.",
-    "Selon le 4e accord, fais de ton mieux aujourd'hui — ton mieux motivé est extraordinaire.",
+    "Selon le 4e accord, fais de ton mieux aujourd&#39;hui — ton mieux motivé est extraordinaire.",
     "Affirmation : Je suis capable de tout ce que je décide d'accomplir avec cœur.",
-    "Canalise cette motivation en écrivant les 3 actions concrètes que tu vas poser aujourd'hui.",
+    "Canalise cette motivation en écrivant les 3 actions concrètes que tu vas poser aujourd&#39;hui.",
     "Partage ton énergie avec quelqu'un qui en a besoin — la motivation est contagieuse.",
     "L'univers récompense ceux qui agissent avec intention et enthousiasme.",
-    "Ton élan d'aujourd'hui construira la confiance de demain. Lance-toi !",
+    "Ton élan d'aujourd&#39;hui construira la confiance de demain. Lance-toi !",
     "Décompose ton grand objectif en petite action simple — et fais-la maintenant.",
-    "Note ce qui t'a motivé pour pouvoir y revenir lors d'une journée plus calme."
+    "Note ce qui t'a motivé pour pouvoir y revenir lors d’une journée plus calme."
   ],
   Anxieux:[
     "L'anxiété est une invitation à revenir dans le moment présent. Pose les deux pieds au sol.",
@@ -1190,7 +1204,7 @@ const CONSEILS={
   Fatigué:[
     "Ton corps te parle clairement. Honore ce message avec du vrai repos sans culpabilité.",
     "La fatigue est parfois le signal que tu as trop donné aux autres — reprends pour toi.",
-    "Selon le 4e accord, ton mieux aujourd'hui c'est peut-être juste de te reposer. C'est suffisant.",
+    "Selon le 4e accord, ton mieux aujourd&#39;hui c'est peut-être juste de te reposer. C'est suffisant.",
     "Affirmation : Je m'accorde la permission de me reposer. Je me recharge avec amour.",
     "Bois de l'eau, mange quelque chose de nourrissant. La fatigue mentale peut être déshydratation.",
     "Une sieste de 20 minutes réinitialise mieux que 2h de repos mal organisé.",
@@ -1232,11 +1246,11 @@ function newUniversMessage(){
 
 // ===== PRIÈRES =====
 const PRAYERS=[
-  {title:`Prière du matin`,text:`Seigneur Jésus, merci pour ce nouveau jour. Ouvre mes yeux à ta présence dans chaque moment. Guide mes pas, mes paroles et mes pensées. Que tout ce que je fais aujourd'hui soit un reflet de ton amour. Amen.`},
+  {title:`Prière du matin`,text:`Seigneur Jésus, merci pour ce nouveau jour. Ouvre mes yeux à ta présence dans chaque moment. Guide mes pas, mes paroles et mes pensées. Que tout ce que je fais aujourd&#39;hui soit un reflet de ton amour. Amen.`},
   {title:`Prière de gratitude`,text:`Père céleste, mon coeur déborde de gratitude. Merci pour le souffle de vie, pour les personnes que j'aime, pour les défis qui me font grandir. Tu es fidèle et bon. Que ta bonté me suive tous les jours de ma vie. Amen.`},
-  {title:`Prière pour la paix intérieure`,text:`Seigneur, quand l'anxiété me saisit, rappelle-moi tes paroles : Ne crains pas, car je suis avec toi. Remplis-moi de ta paix qui surpasse toute compréhension. Protège mon coeur et mon esprit en Jésus-Christ. Amen.`},
+  {title:`Prière pour la paix intérieure`,text:`Seigneur, quand l&#39;anxiété me saisit, rappelle-moi tes paroles : Ne crains pas, car je suis avec toi. Remplis-moi de ta paix qui surpasse toute compréhension. Protège mon coeur et mon esprit en Jésus-Christ. Amen.`},
   {title:`Prière de foi`,text:`Jésus, je te remets mes doutes et mes peurs. Je choisis de te faire confiance même quand je ne comprends pas. Tu connais le chemin que je dois prendre. Guide-moi avec ta lumière, pas à pas. Amen.`},
-  {title:`Prière pour les êtres chers`,text:`Seigneur, je te confie ceux que j'aime. Protège-les, guéris leurs blessures, remplis leurs vies de ta joie. Que chaque personne proche de moi sente ton amour tangible dans leur vie aujourd'hui. Amen.`},
+  {title:`Prière pour les êtres chers`,text:`Seigneur, je te confie ceux que j'aime. Protège-les, guéris leurs blessures, remplis leurs vies de ta joie. Que chaque personne proche de moi sente ton amour tangible dans leur vie aujourd&#39;hui. Amen.`},
   {title:`Prière de guérison`,text:`Père, tu es le médecin des médecins. Je te présente mes douleurs physiques et émotionnelles. Ta Parole dit que par ses meurtrissures nous sommes guéris. Je reçois ta guérison par la foi. Merci, Seigneur. Amen.`},
   {title:`Prière de lâcher-prise`,text:`Seigneur, je te remets tout ce que je tente de contrôler. Mes inquiétudes, mes projets, mes relations. Que ta volonté soit faite et non la mienne. Je fais confiance à ton plan parfait pour ma vie. Amen.`},
   {title:`Prière du soir`,text:`Merci Seigneur pour cette journée. Pour les leçons, les joies, les difficultés. Pardonne mes manquements. Protège-moi cette nuit et que ton Esprit renouvelle mon âme pendant mon repos. Amen.`},
@@ -1274,9 +1288,9 @@ function renderVerse(){
 
 // ===== INIT =====
 function init(){
-  const today=new Date().toDateString();
+  const today=getNowEST().toDateString();
   if(state.lastLogin!==today){
-    const yesterday=new Date(Date.now()-86400000).toDateString();
+    const yesterday=new Date(getNowEST().getTime()-86400000).toDateString();
     state.streak=(state.lastLogin===yesterday)?state.streak+1:1;
     state.lastLogin=today;state.totalDays++;
     state.morningDone=[];
@@ -1325,9 +1339,14 @@ function renderAll(){
   renderGratitudes();renderObjectifs();renderMeds();renderAddictions();
   renderPassions();renderSpheres();renderStats();renderRappels();
   renderEmotionToday();renderEmotionHistory();renderGratitudeHistory();renderVisuHistory();
-  renderMeditationHistory();renderAccordHistory();renderAlcoholTracker();
-  renderNutrition();renderSphereHistory();updateAliments(state.emotion);
-  renderUnivers();renderPrieres();
+  renderMeditationHistory();renderAccordHistory();renderAccordToday();renderAlcoholTracker();
+  renderNutrition();renderSphereHistory();renderSphereTodayAvg();updateAliments(state.emotion);
+  renderUnivers();renderPrieres();renderPriereToday();
+  // Update sphere entries count
+  const today=getTodayEST();
+  const todayCount=(state.sphereEntries||[]).filter(e=>e.date===today).length;
+  const el=document.getElementById('sphere-entries-label');
+  if(el)el.textContent=`${todayCount} évaluation${todayCount!==1?'s':''} aujourd&#39;hui`;
 }
 
 // ===== ÉMOTION =====
@@ -1513,34 +1532,50 @@ function renderEmotionHistory(){
 function addGratitude(){
   const v=document.getElementById('gratitude-input').value.trim();
   if(!v)return;
-  const today=new Date().toISOString().split('T')[0];
-  state.gratitudes.push({date:today,text:v});
+  const today=getTodayEST();
+  const time=getTimeEST();
+  state.gratitudes.push({date:today,text:v,time,ts:Date.now()});
   document.getElementById('gratitude-input').value='';
   addXP(10,'Gratitude ajoutée +10 XP');
   renderGratitudes();renderGratitudeHistory();save();
 }
 
+function deleteGratitude(ts){
+  state.gratitudes=state.gratitudes.filter(g=>g.ts!==ts);
+  renderGratitudes();renderGratitudeHistory();save();
+}
+
 function renderGratitudes(){
   const el=document.getElementById('gratitude-list');
-  const today=new Date().toISOString().split('T')[0];
-  const todayG=state.gratitudes.filter(g=>g.date===today).slice(-5);
-  el.innerHTML=todayG.length?todayG.reverse().map(g=>`<div class="gratitude-item"><span class="gratitude-heart">💛</span><span class="gratitude-text">${g.text}</span></div>`).join(''):'<div style="font-size:12px;color:var(--text3);padding:.5rem 0">Ajoute ta première gratitude du jour</div>';
+  const countEl=document.getElementById('grat-count-label');
+  const today=getTodayEST();
+  const todayG=state.gratitudes.filter(g=>g.date===today).sort((a,b)=>a.ts-b.ts);
+  if(countEl){const n=todayG.length;countEl.textContent=n===0?'aucune':n===1?'1 gratitude':`${n} gratitudes`;}
+  el.innerHTML=todayG.length
+    ?todayG.slice().reverse().map(g=>`
+      <div class="gratitude-item">
+        <span class="gratitude-heart">💛</span>
+        <span class="gratitude-text" style="flex:1">${g.text}</span>
+        ${g.time?`<span style="font-size:10px;color:var(--text3);margin-right:4px">${g.time}</span>`:''}
+        <button onclick="deleteGratitude(${g.ts||0})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0" title="Supprimer">×</button>
+      </div>`).join('')
+    :'<div style="font-size:12px;color:var(--text3);padding:.5rem 0;font-style:italic">Ta première gratitude du jour t&#39;attend ✦</div>';
 }
 
 function renderGratitudeHistory(){
   const el=document.getElementById('gratitude-history');
   if(!el)return;
   const last5=getLast5Days();
-  const today=new Date().toISOString().split('T')[0];
+  const today=getTodayEST();
   const pastDays=last5.filter(d=>d!==today);
   if(!pastDays.length){el.innerHTML='';return;}
-  let html='<div style="font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:.04em">JOURS PRÉCÉDENTS</div>';
-  pastDays.forEach(d=>{
-    const entries=state.gratitudes.filter(g=>g.date===d).slice(-5);
+  let html='<div style="font-size:11px;color:var(--text3);margin-bottom:6px;letter-spacing:.04em">JOURS PRÉCÉDENTS</div>';
+  pastDays.reverse().forEach(d=>{
+    const entries=state.gratitudes.filter(g=>g.date===d);
     if(!entries.length)return;
     const label=new Date(d+'T12:00').toLocaleDateString('fr-CA',{weekday:'long',day:'numeric'});
-    html+=`<div style="margin-bottom:6px"><div style="font-size:11px;color:var(--gold-light);margin-bottom:3px">${label}</div>`;
-    entries.forEach(g=>{html+=`<div style="font-size:12px;color:var(--text3);padding:2px 0;padding-left:8px">• ${g.text}</div>`;});
+    html+=`<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--gold-light);margin-bottom:3px">✦ ${label} (${entries.length})</div>`;
+    entries.forEach(g=>{html+=`<div style="font-size:12px;color:var(--text3);padding:2px 0 2px 8px;display:flex;gap:6px"><span style="color:var(--text3);font-size:10px;min-width:36px">${g.time||''}</span><span>• ${g.text}</span></div>`;});
     html+='</div>';
   });
   el.innerHTML=html;
@@ -1609,12 +1644,42 @@ function updateSphere(key,val,color){
   document.getElementById('sphere-score-'+key).textContent=val+'/10';
   document.getElementById('sphere-fill-'+key).style.width=val*10+'%';
   updateSphereConseil();renderNutrition();
-  // Log quotidien
-  const today=new Date().toISOString().split('T')[0];
+}
+
+function saveSphereEntry(){
+  const today=getTodayEST();
+  const time=getTimeEST();
+  if(!state.sphereEntries)state.sphereEntries=[];
+  state.sphereEntries.push({date:today,time,ts:Date.now(),spheres:{...state.spheres}});
+  if(state.sphereEntries.length>100)state.sphereEntries=state.sphereEntries.slice(-100);
+  // Also update daily log (last entry of day)
   state.sphereLog=state.sphereLog.filter(e=>e.date!==today);
   state.sphereLog.push({date:today,spheres:{...state.spheres}});
   if(state.sphereLog.length>15)state.sphereLog=state.sphereLog.slice(-15);
+  const el=document.getElementById('sphere-entries-label');
+  const todayCount=(state.sphereEntries.filter(e=>e.date===today)||[]).length;
+  if(el)el.textContent=`${todayCount} évaluation${todayCount>1?'s':''} aujourd&#39;hui`;
+  renderSphereTodayAvg();
+  addXP(5,'Équilibre évalué +5 XP');
+  showReward('Évaluation sauvegardée ✦');
   save();
+}
+
+function renderSphereTodayAvg(){
+  const el=document.getElementById('sphere-today-avg');
+  if(!el||!state.sphereEntries)return;
+  const today=getTodayEST();
+  const todayE=(state.sphereEntries||[]).filter(e=>e.date===today);
+  if(!todayE.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:.25rem 0;font-style:italic">Aucune évaluation aujourd&#39;hui</div>';return;}
+  // Average per sphere across all today entries
+  const keys=['Santé','Relations','Travail','Spirituel','Finances','Loisirs'];
+  const avgBySphere={};
+  keys.forEach(k=>{avgBySphere[k]=Math.round(todayE.reduce((a,e)=>a+(e.spheres[k]||5),0)/todayE.length);});
+  const globalAvg=(Object.values(avgBySphere).reduce((a,b)=>a+b,0)/6).toFixed(1);
+  const colors={Santé:'var(--green)',Relations:'var(--rose)',Travail:'var(--teal)',Spirituel:'var(--violet)',Finances:'var(--amber)',Loisirs:'var(--gold)'};
+  let html=`<div style="font-size:12px;color:var(--text2);margin-bottom:8px">Moyenne de ${todayE.length} évaluation${todayE.length>1?'s':''} — Global : <strong style="color:var(--gold)">${globalAvg}/10</strong></div>`;
+  html+=keys.map(k=>`<div class="hist-bar-row"><div class="hist-bar-label" style="min-width:72px;font-size:10px">${k}</div><div class="hist-bar-track"><div class="hist-bar-fill" style="width:${avgBySphere[k]*10}%;background:${colors[k]}"></div></div><div class="hist-bar-val">${avgBySphere[k]}</div></div>`).join('');
+  el.innerHTML=html;
 }
 function updateSphereConseil(){
   const avg=Object.values(state.spheres).reduce((a,b)=>a+b,0)/6;
@@ -1624,7 +1689,7 @@ function updateSphereConseil(){
     Relations:"Investis du temps de qualité avec ceux que tu aimes. Un appel sincère peut tout changer.",
     Travail:"Définis 1 priorité claire pour ta journée de travail. La clarté génère la productivité.",
     Spirituel:"Prends 10 minutes de silence, prière ou méditation. Connecte-toi à ta source.",
-    Finances:"Revois ton budget cette semaine. Une petite économie aujourd'hui, une grande liberté demain.",
+    Finances:"Revois ton budget cette semaine. Une petite économie aujourd&#39;hui, une grande liberté demain.",
     Loisirs:"Tu mérites du temps pour ce qui te nourrit l'âme. Planifie une activité plaisir cette semaine."
   };
   const el=document.getElementById('sphere-conseil');
@@ -1649,21 +1714,29 @@ function renderSphereHistory(){
 }
 
 // ===== NUTRITION SELON SPHÈRES =====
-const nutritionBySphere={
-  Santé:[{icon:'🥦',name:'Brocoli',benefit:'Sulforaphane, protège le cerveau et le corps'},{icon:'🐟',name:'Saumon',benefit:'Oméga-3, anti-inflammatoire puissant'},{icon:'💧',name:'Eau',benefit:'2L/jour — base de toute énergie'},{icon:'🌿',name:'Curcuma',benefit:'Anti-inflammatoire, énergie cellulaire'}],
-  Relations:[{icon:'🍫',name:'Chocolat noir',benefit:'Stimule sérotonine et ocytocine'},{icon:'🍓',name:'Fraises',benefit:'Vitamine C, humeur positive'},{icon:'🫚',name:'Oméga-3',benefit:'Cerveau social et émotionnel'},{icon:'🌼',name:'Ashwagandha',benefit:'Réduit le cortisol, favorise connexion'}],
-  Travail:[{icon:'☕',name:'Café',benefit:'Focus et clarté mentale'},{icon:'🥜',name:'Noix',benefit:'Vitamine E, protège les neurones'},{icon:'🫐',name:'Myrtilles',benefit:'Antioxydants, mémoire et concentration'},{icon:'🌱',name:'Ginseng',benefit:'Adaptogène, énergie soutenue'}],
-  Spirituel:[{icon:'🍵',name:'Matcha',benefit:'L-théanine, paix et clarté spirituelle'},{icon:'🫘',name:'Graine de lin',benefit:'Oméga-3, équilibre profond'},{icon:'🍄',name:'Champignons reishi',benefit:'Adaptogène, connexion corps-esprit'},{icon:'🌾',name:'Avoine',benefit:'Sérotonine, sérénité naturelle'}],
-  Finances:[{icon:'🥚',name:'Œufs',benefit:'Protéines complètes, énergie pour décider'},{icon:'🥬',name:'Épinards',benefit:'Fer et magnésium, clarté mentale'},{icon:'🍌',name:'Banane',benefit:'Potassium, gestion du stress'},{icon:'🫘',name:'Lentilles',benefit:'Énergie stable toute la journée'}],
-  Loisirs:[{icon:'🍊',name:'Agrumes',benefit:'Vitamine C, joie et vitalité'},{icon:'🎃',name:'Courge',benefit:'Bêta-carotène, créativité et humeur'},{icon:'🍇',name:'Raisins',benefit:'Resvératrol, longévité et plaisir'},{icon:'🥝',name:'Kiwi',benefit:'Vitamine K, légèreté et enthousiasme'}],
-};
+// nutritionBySphere moved to extended version below
 function renderNutrition(){
-  const weakest=Object.entries(state.spheres).sort((a,b)=>a[1]-b[1])[0];
+  // Use today sphere average if available
+  const today=getTodayEST();
+  const todayE=(state.sphereEntries||[]).filter(e=>e.date===today);
+  let spheresToUse=state.spheres;
+  if(todayE.length>1){
+    const keys=['Santé','Relations','Travail','Spirituel','Finances','Loisirs'];
+    spheresToUse={};
+    keys.forEach(k=>{spheresToUse[k]=Math.round(todayE.reduce((a,e)=>a+(e.spheres[k]||5),0)/todayE.length);});
+  }
+  const weakest=Object.entries(spheresToUse).sort((a,b)=>a[1]-b[1])[0];
   const data=nutritionBySphere[weakest[0]]||nutritionBySphere['Santé'];
   const el=document.getElementById('nutrition-grid');
   const sub=document.getElementById('nutrition-subtitle');
-  if(sub)sub.textContent=`Pour renforcer ta sphère "${weakest[0]}" (${weakest[1]}/10)`;
-  if(el)el.innerHTML=data.map(a=>`<div class="aliment-card"><div class="aliment-icon">${a.icon}</div><div class="aliment-name">${a.name}</div><div class="aliment-benefit">${a.benefit}</div></div>`).join('');
+  const src=todayE.length>1?`moyenne ${todayE.length} éval.`:'éval. actuelle';
+  if(sub)sub.textContent=`Sphère "${weakest[0]}" (${weakest[1]}/10) — ${src}`;
+  if(el)el.innerHTML=data.map(a=>`
+    <div class="aliment-card" style="${a.benefit.startsWith('Suppléments')?'border-color:rgba(155,114,207,.2);background:rgba(155,114,207,.05)':''}">
+      <div class="aliment-icon">${a.icon}</div>
+      <div class="aliment-name">${a.name}</div>
+      <div class="aliment-benefit">${a.benefit}</div>
+    </div>`).join('');
 }
 
 // ===== MÉDICATION =====
@@ -1706,30 +1779,176 @@ function scheduleAlarm(timeStr){
 // Demander permission notification
 if('Notification' in window&&Notification.permission==='default'){Notification.requestPermission();}
 
-// ===== ALIMENTS SELON HUMEUR =====
+// ===== ALIMENTS + SUPPLÉMENTS SELON HUMEUR & ÉQUILIBRE =====
 const alimentsDB={
-  Joyeux:[{icon:'🍊',name:'Agrumes',benefit:'Vit. C, énergie rayonnante'},{icon:'🌼',name:'Curcuma',benefit:'Anti-inflammatoire, cerveau heureux'},{icon:'🍑',name:'Pêche',benefit:'Antioxydants, humeur radieuse'},{icon:'🫐',name:'Bleuets',benefit:'Flavonoïdes, joie amplifiée'}],
-  "En paix":[{icon:'🍵',name:'Matcha',benefit:'L-théanine, paix et clarté'},{icon:'🫚',name:'Lin',benefit:'Oméga-3, équilibre profond'},{icon:'🥛',name:'Kéfir',benefit:'Probiotiques, sérénité intestin-cerveau'},{icon:'🌾',name:'Avoine',benefit:'Glycémie stable, humeur égale'}],
-  Reconnaissant:[{icon:'🍇',name:'Raisins',benefit:'Resvératrol, longévité et joie'},{icon:'🥝',name:'Kiwi',benefit:'Vit. C+K, légèreté'},{icon:'🧄',name:'Ail',benefit:'Immunité et cœur en santé'},{icon:'🫐',name:'Myrtilles',benefit:'Cerveau reconnaissant et heureux'}],
-  Motivé:[{icon:'☕',name:'Café',benefit:'Focus et élan matinal'},{icon:'🥜',name:'Amandes',benefit:'Vit. E, neurones protégés'},{icon:'🌱',name:'Ginseng',benefit:'Énergie adaptogène'},{icon:'🍌',name:'Banane',benefit:'Potassium, endurance'}],
-  Anxieux:[{icon:'🥑',name:'Avocat',benefit:'Magnésium, calme le système nerveux'},{icon:'🫐',name:'Bleuets',benefit:'Antioxydants, apaisants'},{icon:'🌰',name:'Noix du Brésil',benefit:'Sélénium, régule l\'humeur'},{icon:'🍵',name:'Camomille',benefit:'Calmant naturel puissant'}],
-  Triste:[{icon:'🍫',name:'Chocolat noir',benefit:'Sérotonine et dopamine'},{icon:'🐟',name:'Saumon',benefit:'Oméga-3, antidépresseur naturel'},{icon:'🍌',name:'Banane',benefit:'Tryptophane → sérotonine'},{icon:'☀️',name:'Vit. D3',benefit:'Essentielle contre la dépression'}],
-  Fatigué:[{icon:'🥚',name:'Œufs',benefit:'B12, énergie cellulaire'},{icon:'🥬',name:'Épinards',benefit:'Fer, combat la fatigue'},{icon:'🫘',name:'Lentilles',benefit:'Énergie stable longue durée'},{icon:'💧',name:'Eau',benefit:'1ère cause de fatigue : déshydratation'}],
-  "En colère":[{icon:'🍒',name:'Cerises',benefit:'Anti-inflammatoire naturel'},{icon:'🫚',name:'Huile d\'olive',benefit:'Polyphénols calmants'},{icon:'🌿',name:'Mélisse',benefit:'Propriétés apaisantes profondes'},{icon:'🥦',name:'Brocoli',benefit:'Protège le cerveau du stress'}]
+  Joyeux:[
+    {icon:'🍊',name:'Agrumes',benefit:'Vit. C, énergie et immunité'},
+    {icon:'🌼',name:'Curcuma',benefit:'Anti-inflammatoire, cerveau heureux'},
+    {icon:'🍑',name:'Pêche',benefit:'Antioxydants, peau et humeur radieuses'},
+    {icon:'🫐',name:'Bleuets',benefit:'Flavonoïdes, mémoire et joie'},
+    {icon:'🥭',name:'Mangue',benefit:'Vit. A+C, énergie tropicale'},
+    {icon:'🍓',name:'Fraises',benefit:'Polyphénols, humeur positive'},
+    {icon:'🌞',name:'Vit. D3',benefit:'Suppléments · humeur et énergie'},
+    {icon:'🌿',name:'Rhodiola',benefit:'Suppléments · adaptogène anti-fatigue'},
+  ],
+  "En paix":[
+    {icon:'🍵',name:'Matcha',benefit:'L-théanine, paix et clarté mentale'},
+    {icon:'🫚',name:'Lin moulu',benefit:'Oméga-3, équilibre hormonal profond'},
+    {icon:'🥛',name:'Kéfir',benefit:'Probiotiques, axe intestin-cerveau'},
+    {icon:'🌾',name:'Avoine',benefit:'Bêta-glucane, glycémie et humeur stables'},
+    {icon:'🫖',name:'Camomille',benefit:'Apaisante, favorise la sérénité'},
+    {icon:'🥦',name:'Brocoli',benefit:'Sulforaphane, clarté mentale'},
+    {icon:'🧘',name:'Magnésium',benefit:'Suppléments · détente musculaire et nerveuse'},
+    {icon:'🌙',name:'Mélatonine',benefit:'Suppléments · qualité du sommeil'},
+  ],
+  Reconnaissant:[
+    {icon:'🍇',name:'Raisins',benefit:'Resvératrol, longévité et joie'},
+    {icon:'🥝',name:'Kiwi',benefit:'Vit. C+K, légèreté et immunité'},
+    {icon:'🧄',name:'Ail',benefit:'Allicine, cœur et immunité en santé'},
+    {icon:'🫐',name:'Myrtilles',benefit:'Anthocyanes, cerveau et humeur'},
+    {icon:'🥑',name:'Avocat',benefit:'Bonnes graisses, clarté et énergie'},
+    {icon:'🍋',name:'Citron',benefit:'Vit. C, détox et vitalité'},
+    {icon:'💊',name:'Zinc',benefit:'Suppléments · immunité et humeur positive'},
+    {icon:'🌿',name:'Ashwagandha',benefit:'Suppléments · sérénité et vitalité'},
+  ],
+  Motivé:[
+    {icon:'☕',name:'Café',benefit:'Caféine + antioxydants, focus et élan'},
+    {icon:'🥜',name:'Amandes',benefit:'Vit. E, protection neuronale'},
+    {icon:'🌱',name:'Ginseng',benefit:'Adaptogène, énergie soutenue'},
+    {icon:'🍌',name:'Banane',benefit:'Potassium + glucides, endurance'},
+    {icon:'🥚',name:'Œufs',benefit:'B12 + choline, cerveau en feu'},
+    {icon:'🐟',name:'Thon',benefit:'Protéines + oméga-3, muscle et focus'},
+    {icon:'⚡',name:'Vit. B12',benefit:'Suppléments · énergie cellulaire maximale'},
+    {icon:'🌿',name:'Maca',benefit:'Suppléments · énergie et endurance naturelle'},
+  ],
+  Anxieux:[
+    {icon:'🥑',name:'Avocat',benefit:'Magnésium, calme le système nerveux'},
+    {icon:'🫐',name:'Bleuets',benefit:'Antioxydants, réduction du cortisol'},
+    {icon:'🌰',name:'Noix du Brésil',benefit:'Sélénium, régule l&#39;humeur'},
+    {icon:'🍵',name:'Camomille',benefit:'Apazine, calmant naturel puissant'},
+    {icon:'🐟',name:'Saumon',benefit:'Oméga-3, réduit l&#39;anxiété et l&#39;inflammation'},
+    {icon:'🫖',name:'Lavande',benefit:'Tisane calmante, détente profonde'},
+    {icon:'🧘',name:'Magnésium glycinate',benefit:'Suppléments · anti-anxiété, relax musculaire'},
+    {icon:'🌿',name:'L-Théanine',benefit:'Suppléments · calme sans somnolence'},
+  ],
+  Triste:[
+    {icon:'🍫',name:'Chocolat noir 85%',benefit:'Stimule sérotonine, endorphines et dopamine'},
+    {icon:'🐟',name:'Saumon',benefit:'Oméga-3 EPA+DHA, antidépresseur naturel'},
+    {icon:'🍌',name:'Banane',benefit:'Tryptophane → sérotonine naturelle'},
+    {icon:'☀️',name:'Vit. D3',benefit:'Essentielle contre dépression saisonnière'},
+    {icon:'🥬',name:'Épinards',benefit:'Folates B9, humeur et énergie mentale'},
+    {icon:'🌰',name:'Noix',benefit:'ALA oméga-3, cerveau triste soulagé'},
+    {icon:'🌊',name:'Oméga-3 EPA',benefit:'Suppléments · efficace contre dépression légère'},
+    {icon:'💛',name:'Safran (Saffron)',benefit:'Suppléments · aussi efficace que certains ISRS'},
+  ],
+  Fatigué:[
+    {icon:'🥚',name:'Œufs',benefit:'B12 + protéines, énergie cellulaire durable'},
+    {icon:'🥬',name:'Épinards',benefit:'Fer + magnésium, combat la fatigue profonde'},
+    {icon:'🫘',name:'Lentilles',benefit:'Fer + protéines, énergie stable'},
+    {icon:'💧',name:'Eau (2L)',benefit:'Déshydratation = 1ère cause de fatigue'},
+    {icon:'🌾',name:'Quinoa',benefit:'Protéines complètes, énergie lente'},
+    {icon:'🍠',name:'Patate douce',benefit:'Glucides complexes + Vit. B6, soutien'},
+    {icon:'⚡',name:'Fer bisglycinate',benefit:'Suppléments · si fatigue chronique, vérifier anémie'},
+    {icon:'🌿',name:'Coenzyme Q10',benefit:'Suppléments · énergie mitochondriale cellulaire'},
+  ],
+  "En colère":[
+    {icon:'🍒',name:'Cerises',benefit:'Anthocyanes, anti-inflammatoire puissant'},
+    {icon:"🫚",name:"Huile d’olive",benefit:"Polyphénols, anti-inflammation"},
+    {icon:'🌿',name:'Mélisse',benefit:'Apaisante, tension nerveuse réduite'},
+    {icon:'🥦',name:'Brocoli',benefit:'Sulforaphane, protège le cerveau du stress'},
+    {icon:'🍵',name:'Thé vert',benefit:'L-théanine + EGCG, calme rapide'},
+    {icon:'🥑',name:'Avocat',benefit:'Magnésium, relâche la tension physique'},
+    {icon:'🧘',name:'Magnésium',benefit:'Suppléments · muscle et nerf, décompression rapide'},
+    {icon:'🌿',name:'Valériane',benefit:'Suppléments · sédatif naturel doux, calme la colère'},
+  ]
 };
+
 function updateAliments(emotion){
   const data=alimentsDB[emotion]||alimentsDB['En paix'];
   const sub=document.getElementById('alim-subtitle');
-  if(sub)sub.textContent='Recommandations pour : '+(emotion||'ton bien-être');
+  // Get today avg vibe for context
+  const today=getTodayEST();
+  const todayEntries=(state.emotionLog||[]).filter(e=>e.date===today);
+  const avgVibe=todayEntries.length?Math.round(todayEntries.reduce((a,b)=>a+b.vibe,0)/todayEntries.length):state.vibe;
+  if(sub)sub.textContent=`Aliments & suppléments — ${emotion||'bien-être'} · vibe moy. ${avgVibe}/100`;
   const grid=document.getElementById('aliment-grid');
-  if(grid)grid.innerHTML=data.map(a=>`<div class="aliment-card"><div class="aliment-icon">${a.icon}</div><div class="aliment-name">${a.name}</div><div class="aliment-benefit">${a.benefit}</div></div>`).join('');
+  if(grid)grid.innerHTML=data.map(a=>`
+    <div class="aliment-card" style="${a.name.includes('Suppléments')||a.benefit.startsWith('Suppléments')?'border-color:rgba(155,114,207,.2);background:rgba(155,114,207,.05)':''}">
+      <div class="aliment-icon">${a.icon}</div>
+      <div class="aliment-name">${a.name}</div>
+      <div class="aliment-benefit">${a.benefit}</div>
+    </div>`).join('');
 }
+
+// Nutrition selon sphères étendue
+const nutritionBySphere={
+  Santé:[
+    {icon:'🥦',name:'Brocoli',benefit:'Sulforaphane, protège corps et cerveau'},
+    {icon:'🐟',name:'Saumon sauvage',benefit:'Oméga-3, anti-inflammatoire #1'},
+    {icon:'💧',name:'Eau (2-3L)',benefit:'Base absolue de toute santé'},
+    {icon:'🌿',name:'Curcuma + poivre',benefit:'Biodisponibilité 2000× améliorée'},
+    {icon:'🥬',name:'Épinards',benefit:'Fer, magnésium, folates'},
+    {icon:'🧄',name:'Ail noir',benefit:'Allicine fermenté, immunité maximale'},
+    {icon:'🌞',name:'Vit. D3 + K2',benefit:'Suppléments · os, immunité, humeur'},
+    {icon:'🐠',name:'Oméga-3 EPA+DHA',benefit:'Suppléments · inflammation systémique'},
+  ],
+  Relations:[
+    {icon:'🍫',name:'Chocolat noir',benefit:'Ocytocine et endorphines — hormone du lien'},
+    {icon:'🍓',name:'Fraises',benefit:'Vit. C, humeur positive et rayonnement'},
+    {icon:'🫚',name:'Oméga-3',benefit:'Cerveau social et empathique'},
+    {icon:'🌼',name:'Ashwagandha',benefit:'Réduit cortisol, favorise connexion'},
+    {icon:'🥑',name:'Avocat',benefit:'Magnésium, patience et douceur'},
+    {icon:'🫖',name:'Cacao cru',benefit:'Théobromine, humeur chaleureuse'},
+    {icon:'💞',name:'Ocytocine support',benefit:'Suppléments · magnésium + zinc + B6'},
+    {icon:'🌿',name:'Rhodiola',benefit:'Suppléments · énergie sociale et résilience'},
+  ],
+  Travail:[
+    {icon:'☕',name:'Café (2 max/j)',benefit:'Focus et productivité sans anxiété'},
+    {icon:'🥜',name:'Noix du Grenoble',benefit:'ALA oméga-3, mémoire de travail'},
+    {icon:'🫐',name:'Myrtilles',benefit:'Antioxydants ORAC, mémoire +20%'},
+    {icon:'🌱',name:'Ginseng coréen',benefit:'Adaptogène, concentration soutenue'},
+    {icon:'🥚',name:'Œufs entiers',benefit:'Choline, neurotransmetteurs actifs'},
+    {icon:'🍵',name:'Matcha',benefit:'L-théanine + caféine, focus calme'},
+    {icon:'⚡',name:'Vit. B complexe',benefit:'Suppléments · énergie neuronale complète'},
+    {icon:'🧠',name:'Lion&#39;s Mane',benefit:'Suppléments · NGF, croissance neuronale'},
+  ],
+  Spirituel:[
+    {icon:'🍵',name:'Matcha cérémonial',benefit:'L-théanine, paix et présence'},
+    {icon:'🫘',name:'Graine de lin',benefit:'Oméga-3, équilibre corps-esprit'},
+    {icon:'🍄',name:'Reishi',benefit:'Adaptogène, connexion profonde'},
+    {icon:'🌾',name:'Avoine complète',benefit:'Sérotonine, sérénité naturelle'},
+    {icon:'🫖',name:'Lavande',benefit:'Tisane, calme l&#39;esprit et le cœur'},
+    {icon:'🌙',name:'Ashwagandha KSM-66',benefit:'Cortisol bas, présence spirituelle'},
+    {icon:'🙏',name:'Magnésium L-thréonate',benefit:'Suppléments · traverse barrière hémato-encéphalique'},
+    {icon:'🌿',name:'CBD (légal Canada)',benefit:'Suppléments · anxiété et spiritualité, si permis'},
+  ],
+  Finances:[
+    {icon:'🥚',name:'Œufs',benefit:'B12, énergie et clarté pour décider'},
+    {icon:'🥬',name:'Épinards',benefit:'Fer + magnésium, clarté mentale'},
+    {icon:'🍌',name:'Banane',benefit:'Potassium, gestion du stress'},
+    {icon:'🫘',name:'Lentilles',benefit:'Fer + protéines, énergie stable'},
+    {icon:'🐟',name:'Sardines',benefit:'Oméga-3 économique, très efficace'},
+    {icon:'🌰',name:'Noix de cajou',benefit:'Zinc + magnésium, calme décisionnel'},
+    {icon:'⚡',name:'Fer + B12',benefit:'Suppléments · si fatigue décisionnelle chronique'},
+    {icon:'🧠',name:'Phosphatidylsérine',benefit:'Suppléments · mémoire et prise de décision'},
+  ],
+  Loisirs:[
+    {icon:'🍊',name:'Agrumes frais',benefit:'Vit. C, joie et vitalité créative'},
+    {icon:'🎃',name:'Courge butternut',benefit:'Bêta-carotène, créativité et humeur'},
+    {icon:'🍇',name:'Raisins rouges',benefit:'Resvératrol, longévité et plaisir'},
+    {icon:'🥝',name:'Kiwi',benefit:'Vit. K + sérotonine précurseur'},
+    {icon:'🥭',name:'Mangue',benefit:'Dopamine boost, envie de jouer'},
+    {icon:'🍍',name:'Ananas',benefit:'Bromélaïne, récupération et légèreté'},
+    {icon:'🌞',name:'Vit. D3',benefit:'Suppléments · humeur, motivation, plaisir'},
+    {icon:'🌿',name:'Tyrosine',benefit:'Suppléments · précurseur dopamine et créativité'},
+  ],
+};
 
 // ===== ADDICTION =====
 function saveAddiction(){
   const name=document.getElementById('addict-name-input').value.trim();
   if(!name)return;
-  const startDate=document.getElementById('addict-date-input').value||new Date().toISOString().split('T')[0];
+  const startDate=document.getElementById('addict-date-input').value||getTodayEST();
   state.addictions.push({id:Date.now(),name,startDate,milestones:[1,3,7,14,30,60,90]});
   closeModal('modal-addiction');
   document.getElementById('addict-name-input').value='';
@@ -1746,42 +1965,72 @@ function renderAddictions(){
   }).join('');
 }
 
-// ===== ALCOOL =====
+// ===== ALCOOL + EAU =====
 function renderAlcoholTracker(){
   const el=document.getElementById('alcohol-tracker');
   const sum=document.getElementById('alcohol-summary');
   if(!el)return;
   const days=[];
-  for(let i=6;i>=0;i--){const d=new Date(Date.now()-i*86400000);days.push(d.toISOString().split('T')[0]);}
-  let html='';let totalVerres=0;let soberDays=0;
+  for(let i=6;i>=0;i--){
+    const d=new Date(Date.now()-i*86400000);
+    const est=new Date(d.toLocaleString('en-US',{timeZone:'America/Toronto'}));
+    const y=est.getFullYear(),m=String(est.getMonth()+1).padStart(2,'0'),dd=String(est.getDate()).padStart(2,'0');
+    days.push(`${y}-${m}-${dd}`);
+  }
+  let html='';let totalVerres=0;let soberDays=0;let totalWater=0;
   days.forEach(d=>{
-    const count=state.alcoholLog[d]||0;
-    if(count===0)soberDays++;
-    totalVerres+=count;
+    const alcCount=state.alcoholLog[d]||0;
+    const waterCount=state.waterLog&&state.waterLog[d]||0;
+    if(alcCount===0)soberDays++;
+    totalVerres+=alcCount;totalWater+=waterCount;
     const label=new Date(d+'T12:00').toLocaleDateString('fr-CA',{weekday:'short',day:'numeric'});
-    html+=`<div class="alcohol-day"><div class="alcohol-day-label">${label}</div>`;
-    if(count===0){html+=`<div class="alcohol-glass sober" onclick="toggleAlcohol('${d}',0)" title="Jour sans alcool ✓">✓</div>`;}
-    else{for(let g=0;g<Math.min(count,8);g++){html+=`<div class="alcohol-glass filled" onclick="toggleAlcohol('${d}',${g+1})">🍷</div>`;}
-    html+=`<div class="alcohol-glass" onclick="addAlcohol('${d}')" style="opacity:.5">+</div>`;}
-    if(count===0){} else{html+=`<div style="font-size:11px;color:var(--text3);margin-left:4px">${count} verre${count>1?'s':''}</div>`;}
-    html+=`<div class="alcohol-glass" style="margin-left:auto;font-size:10px;background:none;border:none;color:var(--text3)" onclick="addAlcohol('${d}')">+</div>`;
-    html+='</div>';
+    const waterColor=waterCount>=8?'var(--teal)':waterCount>=4?'var(--amber)':'var(--danger)';
+    html+=`<div class="alcohol-day" style="flex-wrap:wrap;gap:4px 6px;padding:.6rem 0">
+      <div class="alcohol-day-label" style="min-width:52px">${label}</div>
+      <div style="display:flex;align-items:center;gap:3px">
+        🍷`;
+    if(alcCount===0){html+=`<div class="alcohol-glass sober" onclick="toggleAlcohol('${d}',0)" title="0 verre">✓</div>`;}
+    else{
+      for(let g=0;g<Math.min(alcCount,6);g++){html+=`<div class="alcohol-glass filled" onclick="toggleAlcohol('${d}',${g+1})" title="Clic pour enlever">🍷</div>`;}
+      html+=`<div style="font-size:10px;color:var(--danger);font-weight:500">${alcCount}</div>`;
+    }
+    html+=`<div class="alcohol-glass" onclick="addAlcohol('${d}')" style="font-size:10px;color:var(--text3)">+</div>`;
+    html+=`</div>
+      <div style="display:flex;align-items:center;gap:3px;margin-left:auto">
+        💧`;
+    for(let w=0;w<8;w++){
+      const filled=w<waterCount;
+      html+=`<div onclick="toggleWater('${d}',${w+1})" style="width:14px;height:14px;border-radius:50%;background:${filled?'var(--teal)':'var(--surface)'};border:1px solid ${filled?'var(--teal)':'rgba(255,255,255,.1)'};cursor:pointer;transition:all .2s"></div>`;
+    }
+    html+=`<div style="font-size:10px;color:${waterColor};font-weight:500;margin-left:2px">${waterCount}/8</div>`;
+    html+='</div></div>';
   });
   el.innerHTML=html;
   if(sum){
-    const objective=soberDays>=2;
-    const color=objective?'var(--green)':'var(--amber)';
-    const icon=objective?'✅':'⚠️';
-    sum.innerHTML=`${icon} <strong style="color:${color}">${soberDays} jour${soberDays!==1?'s':''} sans alcool</strong> cette semaine · ${totalVerres} verre${totalVerres!==1?'s':''} au total<br><span style="font-size:12px;color:var(--text3)">${objective?'Objectif atteint ! Bravo 🎉':'Objectif : 2 jours sans alcool cette semaine'}</span>`;
+    const alcOk=soberDays>=2;
+    const waterAvg=Math.round(totalWater/7);
+    const waterOk=waterAvg>=6;
+    sum.innerHTML=`
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="flex:1;min-width:120px;padding:.6rem;background:var(--surface2);border-radius:var(--rsm)">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">🍷 Alcool</div>
+          <div style="font-size:13px;color:${alcOk?'var(--green)':'var(--amber)'}">${alcOk?'✅':'⚠️'} ${soberDays}j sans · ${totalVerres} verres</div>
+          <div style="font-size:11px;color:var(--text3)">${alcOk?'Objectif atteint !':'Objectif : 2 jours sans'}</div>
+        </div>
+        <div style="flex:1;min-width:120px;padding:.6rem;background:var(--surface2);border-radius:var(--rsm)">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">💧 Eau</div>
+          <div style="font-size:13px;color:${waterOk?'var(--teal)':'var(--amber)'}">${waterOk?'✅':'💧'} ~${waterAvg} verres/j</div>
+          <div style="font-size:11px;color:var(--text3)">${waterOk?'Bien hydraté !':'Objectif : 8 verres/jour'}</div>
+        </div>
+      </div>`;
   }
 }
-function addAlcohol(date){
-  state.alcoholLog[date]=(state.alcoholLog[date]||0)+1;
-  save();renderAlcoholTracker();
-}
-function toggleAlcohol(date,g){
-  if(g===0){state.alcoholLog[date]=0;}
-  else{state.alcoholLog[date]=g>1?g-1:0;}
+function addAlcohol(date){state.alcoholLog[date]=(state.alcoholLog[date]||0)+1;save();renderAlcoholTracker();}
+function toggleAlcohol(date,g){state.alcoholLog[date]=g>1?g-1:0;save();renderAlcoholTracker();}
+function toggleWater(date,g){
+  if(!state.waterLog)state.waterLog={};
+  const cur=state.waterLog[date]||0;
+  state.waterLog[date]=cur>=g?g-1:g;
   save();renderAlcoholTracker();
 }
 
@@ -1854,7 +2103,7 @@ function renderMorning(){
 function saveVisu(){
   const v=document.getElementById('visu-input').value.trim();
   if(!v)return;
-  const today=new Date().toISOString().split('T')[0];
+  const today=getTodayEST();
   state.visuList.push({date:today,text:v});
   if(state.visuList.length>5)state.visuList=state.visuList.slice(-5);
   document.getElementById('visu-input').value='';
@@ -1933,7 +2182,7 @@ function toggleTimer(){
         // 3 coups à la fin
         playMeditationBell();
         const mins=Math.round(timerTotal/60);
-        const today=new Date().toISOString().split('T')[0];
+        const today=getTodayEST();
         state.meditationLog.push({date:today,mins});
         if(state.meditationLog.length>60)state.meditationLog=state.meditationLog.slice(-60);
         addXP(20,'Méditation complétée ! +20 XP');
@@ -1966,20 +2215,45 @@ function renderMeditationHistory(){
 function saveAccordPratique(){
   const v=document.getElementById('accord-pratique').value.trim();
   if(!v)return;
-  const today=new Date().toISOString().split('T')[0];
-  state.accordPratiqueLog.push({date:today,text:v});
-  if(state.accordPratiqueLog.length>30)state.accordPratiqueLog=state.accordPratiqueLog.slice(-30);
+  const today=getTodayEST();
+  const time=getTimeEST();
+  const ts=Date.now();
+  state.accordPratiqueLog.push({date:today,time,ts,text:v});
+  if(state.accordPratiqueLog.length>60)state.accordPratiqueLog=state.accordPratiqueLog.slice(-60);
   document.getElementById('accord-pratique').value='';
-  addXP(15,'Accord pratiqué ! +15 XP');renderAccordHistory();save();
+  addXP(15,'Accord pratiqué ! +15 XP');
+  renderAccordHistory();renderAccordToday();save();
+}
+function renderAccordToday(){
+  const el=document.getElementById('accord-today');
+  if(!el)return;
+  const today=getTodayEST();
+  const todayA=state.accordPratiqueLog.filter(a=>a.date===today).slice().reverse();
+  if(!todayA.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);font-style:italic">Aucune situation enregistrée</div>';return;}
+  el.innerHTML=todayA.map(a=>`
+    <div class="gratitude-item">
+      <span style="font-size:10px;color:var(--gold);min-width:38px">${a.time||''}</span>
+      <span class="gratitude-text">${a.text}</span>
+    </div>`).join('');
 }
 function renderAccordHistory(){
   const el=document.getElementById('accord-history');
   if(!el)return;
-  const last30=state.accordPratiqueLog.slice(-30).slice().reverse();
-  if(!last30.length){el.innerHTML='<div style="font-size:12px;color:var(--text3)">Tes situations concrètes apparaîtront ici</div>';return;}
-  el.innerHTML=last30.map(a=>{
-    const label=new Date(a.date+'T12:00').toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
-    return`<div class="gratitude-item"><span class="gratitude-heart" style="font-size:.8rem;color:var(--gold)">${label}</span><span class="gratitude-text">${a.text}</span></div>`;
+  const today=getTodayEST();
+  const past=state.accordPratiqueLog.filter(a=>a.date!==today).slice(-30).slice().reverse();
+  if(!past.length){el.innerHTML='<div style="font-size:12px;color:var(--text3)">Tes situations passées apparaîtront ici</div>';return;}
+  // Group by date
+  const byDate={};
+  past.forEach(a=>{if(!byDate[a.date])byDate[a.date]=[];byDate[a.date].push(a);});
+  el.innerHTML=Object.entries(byDate).map(([d,items])=>{
+    const label=new Date(d+'T12:00').toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
+    return`<div style="margin-bottom:8px">
+      <div style="font-size:11px;color:var(--gold-light);margin-bottom:3px">✦ ${label}</div>
+      ${items.map(a=>`<div class="gratitude-item" style="margin-bottom:4px">
+        <span style="font-size:10px;color:var(--text3);min-width:38px">${a.time||''}</span>
+        <span class="gratitude-text">${a.text}</span>
+      </div>`).join('')}
+    </div>`;
   }).join('');
 }
 
@@ -1987,20 +2261,46 @@ function renderAccordHistory(){
 function savePriere(){
   const v=document.getElementById('priere-input').value.trim();
   if(!v)return;
-  const today=new Date().toISOString().split('T')[0];
-  state.prieres.push({date:today,text:v});
-  if(state.prieres.length>20)state.prieres=state.prieres.slice(-20);
+  const today=getTodayEST();
+  const time=getTimeEST();
+  state.prieres.push({date:today,time,ts:Date.now(),text:v});
+  if(state.prieres.length>50)state.prieres=state.prieres.slice(-50);
   document.getElementById('priere-input').value='';
-  addXP(10,'Prière offerte ✦');renderPrieres();save();
+  addXP(10,'Prière offerte ✦');
+  renderPriereToday();renderPrieres();save();
+}
+function renderPriereToday(){
+  const el=document.getElementById('priere-today');
+  if(!el)return;
+  const today=getTodayEST();
+  const todayP=state.prieres.filter(p=>p.date===today).slice().reverse();
+  if(!todayP.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);font-style:italic">Aucune prière aujourd&#39;hui</div>';return;}
+  el.innerHTML=todayP.map(p=>`
+    <div class="gratitude-item">
+      <span style="font-size:1rem">🕊️</span>
+      <div style="flex:1">
+        <div style="font-size:10px;color:var(--gold);margin-bottom:2px">${p.time||''}</div>
+        <div class="gratitude-text" style="font-style:italic">${p.text}</div>
+      </div>
+    </div>`).join('');
 }
 function renderPrieres(){
   const el=document.getElementById('priere-history');
   if(!el)return;
-  const last10=state.prieres.slice(-10).reverse();
-  if(!last10.length){el.innerHTML='<div style="font-size:12px;color:var(--text3)">Tes prières sauvegardées apparaîtront ici</div>';return;}
-  el.innerHTML=last10.map(p=>{
-    const label=new Date(p.date+'T12:00').toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short'});
-    return`<div class="gratitude-item"><span class="gratitude-heart" style="font-size:.8rem;color:var(--gold)">${label}</span><span class="gratitude-text" style="font-style:italic">${p.text}</span></div>`;
+  const today=getTodayEST();
+  const past=state.prieres.filter(p=>p.date!==today).slice(-15).reverse();
+  if(!past.length){el.innerHTML='<div style="font-size:12px;color:var(--text3)">Tes prières passées apparaîtront ici</div>';return;}
+  const byDate={};
+  past.forEach(p=>{if(!byDate[p.date])byDate[p.date]=[];byDate[p.date].push(p);});
+  el.innerHTML=Object.entries(byDate).map(([d,items])=>{
+    const label=new Date(d+'T12:00').toLocaleDateString('fr-CA',{weekday:'long',day:'numeric',month:'long'});
+    return`<div style="margin-bottom:10px">
+      <div style="font-size:11px;color:var(--gold-light);margin-bottom:4px">🕊️ ${label}</div>
+      ${items.map(p=>`<div class="gratitude-item" style="margin-bottom:4px">
+        <span style="font-size:10px;color:var(--text3);min-width:38px">${p.time||''}</span>
+        <span class="gratitude-text" style="font-style:italic">${p.text}</span>
+      </div>`).join('')}
+    </div>`;
   }).join('');
 }
 
