@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,sendPasswordResetEmail}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,sendPasswordResetEmail,sendEmailVerification}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,doc,setDoc,getDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyBu04N2lHAw9OrIZHfEQPD-Nufsy42Ola8",authDomain:"ame-app-354f0.firebaseapp.com",projectId:"ame-app-354f0",storageBucket:"ame-app-354f0.firebasestorage.app",messagingSenderId:"492997682259",appId:"1:492997682259:web:320a686b2c9c848edbd2a6"};
 const fbApp=initializeApp(firebaseConfig);
@@ -29,15 +29,21 @@ const db=getFirestore(fbApp);
 // Expose everything needed globally
 window._fb={auth,db,
   createUserWithEmailAndPassword,signInWithEmailAndPassword,
-  signOut,updateProfile,sendPasswordResetEmail,
+  signOut,updateProfile,sendPasswordResetEmail,sendEmailVerification,
   doc,setDoc,getDoc
 };
 
 // Auth state observer
 onAuthStateChanged(auth,user=>{
   if(user){
-    window._fbUser=user;
-    if(window._fbOnLogin)window._fbOnLogin(user);
+    if(!user.emailVerified){
+      // Connecté mais courriel non vérifié — afficher écran de vérification
+      window._fbUser=null;
+      if(window._fbOnPendingVerification)window._fbOnPendingVerification(user);
+    }else{
+      window._fbUser=user;
+      if(window._fbOnLogin)window._fbOnLogin(user);
+    }
   }else{
     window._fbUser=null;
     if(window._fbOnLogout)window._fbOnLogout();
@@ -346,7 +352,29 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
   </div>
 </div>
 
-<!-- Profile dropdown -->
+<!-- ===== VERIFY EMAIL SCREEN ===== -->
+<div id="verify-screen" style="display:none;position:fixed;inset:0;z-index:8500;background:var(--deep);overflow-y:auto;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;min-height:100vh">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:3.5rem;font-weight:300;color:var(--gold);letter-spacing:.2em;margin-bottom:.5rem;animation:pulse 3s ease-in-out infinite">ÂME</div>
+  <div style="font-size:12px;color:var(--text3);letter-spacing:.15em;margin-bottom:2rem;text-align:center">Bien-être · Élévation · Paix intérieure</div>
+  <div style="width:100%;max-width:360px;background:var(--surface);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:2rem;text-align:center">
+    <div style="font-size:3rem;margin-bottom:1rem">📬</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold-light);margin-bottom:.75rem">Vérifie ton courriel</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:1.5rem">
+      Un lien de vérification a été envoyé à<br>
+      <strong id="verify-email-addr" style="color:var(--gold)"></strong><br><br>
+      Clique sur le lien dans le courriel, puis reviens ici.
+    </div>
+    <button class="auth-submit" style="margin-bottom:.75rem" onclick="checkEmailVerified()">✓ J'ai vérifié mon courriel</button>
+    <button class="auth-submit" style="background:var(--surface2);color:var(--text2);margin-bottom:.75rem" onclick="resendVerification()">↻ Renvoyer le courriel</button>
+    <div id="verify-msg" style="font-size:12px;color:var(--green);margin-top:.5rem;display:none;padding:.5rem .75rem;background:rgba(107,203,119,.1);border-radius:var(--rsm)"></div>
+    <div id="verify-error" style="font-size:12px;color:var(--danger);margin-top:.5rem;display:none;padding:.5rem .75rem;background:rgba(255,107,107,.1);border-radius:var(--rsm)"></div>
+    <div style="margin-top:1rem;border-top:1px solid rgba(255,255,255,.07);padding-top:1rem">
+      <button class="auth-submit" style="background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--text3);font-size:12px" onclick="doLogoutFromVerify()">↩ Retour à la connexion</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="profile-dd" id="profile-dd">
   <div class="profile-dd-name" id="dd-name">—</div>
   <div class="profile-dd-email" id="dd-email">—</div>
@@ -2520,7 +2548,14 @@ async function doLogin(){
   if(!email||!pass){showAuthErr('login-error','Remplis tous les champs.');return;}
   setLoading('btn-login',true);
   try{
-    await fb.signInWithEmailAndPassword(fb.auth,email,pass);
+    const cred=await fb.signInWithEmailAndPassword(fb.auth,email,pass);
+    if(!cred.user.emailVerified){
+      // Courriel non vérifié — afficher l'écran de vérification
+      showVerifyScreen(cred.user);
+      setLoading('btn-login',false);
+      return;
+    }
+    // emailVerified=true : onAuthStateChanged prend le relais
   }catch(e){
     showAuthErr('login-error',ERRORS[e.code]||('Erreur : '+e.code));
     setLoading('btn-login',false);
@@ -2541,7 +2576,11 @@ async function doRegister(){
   try{
     const cred=await fb.createUserWithEmailAndPassword(fb.auth,email,pass);
     await fb.updateProfile(cred.user,{displayName:name});
-    addXP(50,'Bienvenue dans ÂME ! +50 XP ✦');
+    // Envoyer le courriel de vérification
+    await fb.sendEmailVerification(cred.user);
+    // Afficher l'écran d'attente de vérification
+    showVerifyScreen(cred.user);
+    setLoading('btn-register',false);
   }catch(e){
     showAuthErr('register-error',ERRORS[e.code]||('Erreur : '+e.code));
     setLoading('btn-register',false);
@@ -2559,6 +2598,66 @@ async function doReset(){
     s.style.display='block';
     setTimeout(()=>s.style.display='none',5000);
   }catch(e){showAuthErr('login-error',ERRORS[e.code]||e.message);}
+}
+
+// ===== ÉCRAN DE VÉRIFICATION PAR COURRIEL =====
+function showVerifyScreen(user){
+  document.getElementById('auth-screen').classList.remove('visible');
+  const vs=document.getElementById('verify-screen');
+  vs.style.display='flex';
+  const addr=document.getElementById('verify-email-addr');
+  if(addr)addr.textContent=user.email||'';
+}
+
+function hideVerifyScreen(){
+  document.getElementById('verify-screen').style.display='none';
+}
+
+function showVerifyMsg(msg,isError){
+  const el=document.getElementById(isError?'verify-error':'verify-msg');
+  const other=document.getElementById(isError?'verify-msg':'verify-error');
+  if(other)other.style.display='none';
+  el.textContent=msg;
+  el.style.display='block';
+  setTimeout(()=>el.style.display='none',5000);
+}
+
+async function checkEmailVerified(){
+  const fb=window._fb;
+  const user=fb&&fb.auth.currentUser;
+  if(!user){showVerifyMsg('Session expirée. Reconnecte-toi.',true);return;}
+  try{
+    await user.reload();
+    if(user.emailVerified){
+      hideVerifyScreen();
+      // Déclencher manuellement le callback de login
+      window._fbUser=user;
+      if(window._fbOnLogin)window._fbOnLogin(user);
+    }else{
+      showVerifyMsg('Courriel pas encore vérifié. Vérifie ta boîte de réception (et les spams).',true);
+    }
+  }catch(e){
+    showVerifyMsg('Erreur : '+e.message,true);
+  }
+}
+
+async function resendVerification(){
+  const fb=window._fb;
+  const user=fb&&fb.auth.currentUser;
+  if(!user){showVerifyMsg('Session expirée. Reconnecte-toi.',true);return;}
+  try{
+    await fb.sendEmailVerification(user);
+    showVerifyMsg('✓ Courriel renvoyé ! Vérifie ta boîte de réception.');
+  }catch(e){
+    showVerifyMsg(ERRORS[e.code]||'Erreur : '+e.message,true);
+  }
+}
+
+async function doLogoutFromVerify(){
+  const fb=window._fb;
+  if(fb)await fb.signOut(fb.auth);
+  hideVerifyScreen();
+  document.getElementById('auth-screen').classList.add('visible');
 }
 
 async function doLogout(){
@@ -2648,8 +2747,9 @@ async function manualSync(){
 
 // ===== AUTH CALLBACKS =====
 window._fbOnLogin=async(user)=>{
-  // Masquer écran de connexion
+  // Masquer écrans auth et vérification
   document.getElementById('auth-screen').classList.remove('visible');
+  hideVerifyScreen();
   updateAvatar(user);
   const dot=document.getElementById('sync-dot');
   if(dot)dot.classList.remove('off');
@@ -2661,6 +2761,8 @@ window._fbOnLogin=async(user)=>{
   if(!window._appInited){
     window._appInited=true;
     init();
+    // XP de bienvenue seulement à la toute première connexion vérifiée
+    if(!loaded)addXP(50,'Bienvenue dans ÂME ! +50 XP ✦');
   } else {
     renderAll();
     updateXPBar();
@@ -2668,6 +2770,11 @@ window._fbOnLogin=async(user)=>{
 
   // Sync initiale pour s'assurer que le compte est à jour
   setTimeout(()=>syncToCloud(), 3000);
+};
+
+window._fbOnPendingVerification=(user)=>{
+  // L'utilisateur est connecté mais le courriel n'est pas vérifié
+  showVerifyScreen(user);
 };
 
 window._fbOnLogout=()=>{
