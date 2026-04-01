@@ -98,10 +98,21 @@ textarea{min-height:80px}
 .accord-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--gold);border:1px solid rgba(200,169,106,.3);flex-shrink:0}
 .accord-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
 .accord-desc{font-size:12px;color:var(--text3);line-height:1.6}
-.objectif-item{background:var(--surface2);border-radius:var(--rsm);padding:1rem;margin-bottom:8px;border:1px solid rgba(255,255,255,.05)}
+.objectif-item{background:var(--surface2);border-radius:var(--rsm);padding:1rem;margin-bottom:8px;border:1px solid rgba(255,255,255,.05);transition:var(--tr)}
+.objectif-item.completed{border-color:rgba(107,203,119,.25);background:rgba(107,203,119,.04);opacity:.8}
+.objectif-item.completed .obj-title{text-decoration:line-through;opacity:.6}
 .obj-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
 .obj-title{font-size:14px;font-weight:500;color:var(--text);flex:1;margin-right:8px}
 .obj-sphere{font-size:10px;padding:2px 8px;border-radius:99px;background:rgba(78,205,196,.15);color:var(--teal);letter-spacing:.05em}
+.obj-actions{display:flex;gap:6px;margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.05)}
+.obj-btn{flex:1;padding:.4rem .5rem;border-radius:var(--rsm);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:4px}
+.obj-btn-complete{background:rgba(107,203,119,.15);color:var(--green);border:1px solid rgba(107,203,119,.25)}
+.obj-btn-complete:hover{background:rgba(107,203,119,.28)}
+.obj-btn-uncomplete{background:rgba(255,209,102,.12);color:var(--amber);border:1px solid rgba(255,209,102,.2)}
+.obj-btn-uncomplete:hover{background:rgba(255,209,102,.25)}
+.obj-btn-delete{background:rgba(255,107,107,.1);color:var(--danger);border:1px solid rgba(255,107,107,.2)}
+.obj-btn-delete:hover{background:rgba(255,107,107,.22)}
+.obj-completed-badge{font-size:10px;padding:2px 8px;border-radius:99px;background:rgba(107,203,119,.15);color:var(--green);letter-spacing:.05em;margin-left:6px}
 .progress-bar{height:4px;background:var(--surface);border-radius:99px;overflow:hidden;margin:6px 0}
 .progress-fill{height:100%;border-radius:99px;transition:width .8s ease}
 .step-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);padding:3px 0;cursor:pointer}
@@ -464,9 +475,14 @@ label{font-size:12px;color:var(--text3);letter-spacing:.04em;display:block;margi
   <!-- ===== OBJECTIFS ===== -->
   <div class="screen" id="screen-objectifs">
     <div class="card">
-      <div class="card-title">🎯 Mes objectifs</div>
+      <div class="card-title">🎯 Mes objectifs actifs</div>
       <div id="objectifs-list"></div>
-      <button class="btn btn-primary btn-full" onclick="openModal('modal-objectif')">+ Nouvel objectif</button>
+      <button class="btn btn-primary btn-full" onclick="openModal('modal-objectif')" style="margin-top:.25rem">+ Nouvel objectif</button>
+    </div>
+
+    <div class="card" id="objectifs-completed-card" style="display:none">
+      <div class="card-title" style="color:var(--green)">✅ Objectifs complétés</div>
+      <div id="objectifs-completed-list"></div>
     </div>
 
     <div class="card">
@@ -1607,28 +1623,115 @@ function saveObjectif(){
   const title=document.getElementById('obj-title-input').value.trim();
   if(!title)return;
   const steps=document.getElementById('obj-steps-input').value.trim().split('\n').filter(s=>s);
-  state.objectifs.push({id:Date.now(),title,sphere:document.getElementById('obj-sphere-input').value,steps:steps.map(s=>({text:s,done:false})),progress:0});
+  state.objectifs.push({
+    id:Date.now(),
+    title,
+    sphere:document.getElementById('obj-sphere-input').value,
+    steps:steps.map(s=>({text:s,done:false})),
+    progress:0,
+    completed:false,
+    completedDate:null
+  });
   closeModal('modal-objectif');
   document.getElementById('obj-title-input').value='';
   document.getElementById('obj-steps-input').value='';
   addXP(20,'Objectif créé ! +20 XP');renderObjectifs();save();
 }
+
+function completeObjectif(id){
+  const obj=state.objectifs.find(o=>o.id===id);
+  if(!obj)return;
+  obj.completed=true;
+  obj.completedDate=getTodayEST();
+  addXP(50,'Objectif accompli ! +50 XP ✦');
+  renderObjectifs();save();
+}
+
+function uncompleteObjectif(id){
+  const obj=state.objectifs.find(o=>o.id===id);
+  if(!obj)return;
+  obj.completed=false;
+  obj.completedDate=null;
+  renderObjectifs();save();
+}
+
+function deleteObjectif(id){
+  state.objectifs=state.objectifs.filter(o=>o.id!==id);
+  renderObjectifs();save();
+}
+
 function renderObjectifs(){
   const el=document.getElementById('objectifs-list');
-  if(!state.objectifs.length){el.innerHTML='<div style="text-align:center;color:var(--text3);font-size:13px;padding:1rem">Aucun objectif pour l\'instant 🎯</div>';return;}
+  const compEl=document.getElementById('objectifs-completed-list');
+  const compCard=document.getElementById('objectifs-completed-card');
+  if(!el)return;
+
   const colors={Santé:'var(--green)',Relations:'var(--rose)',Travail:'var(--teal)',Spirituel:'var(--violet)',Finances:'var(--amber)',Loisirs:'var(--gold)'};
-  el.innerHTML=state.objectifs.map((obj,i)=>{
-    const done=obj.steps.filter(s=>s.done).length,total=obj.steps.length;
-    const pct=total?Math.round(done/total*100):0;
-    const color=colors[obj.sphere]||'var(--gold)';
-    return`<div class="objectif-item"><div class="obj-header"><div class="obj-title">${obj.title}</div><div class="obj-sphere">${obj.sphere}</div></div><div style="font-size:12px;color:var(--text3)">${pct}% — ${done}/${total} étapes</div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div><div class="obj-steps">${obj.steps.map((s,si)=>`<div class="step-item" onclick="toggleStep(${i},${si})"><div class="step-cb ${s.done?'done':''}"></div><span style="${s.done?'text-decoration:line-through;opacity:.5':''}">${s.text}</span></div>`).join('')}</div></div>`;
-  }).join('');
+
+  const active=state.objectifs.filter(o=>!o.completed);
+  const completed=state.objectifs.filter(o=>o.completed);
+
+  // Active
+  if(!active.length){
+    el.innerHTML='<div style="text-align:center;color:var(--text3);font-size:13px;padding:1rem;font-style:italic">Aucun objectif actif 🎯</div>';
+  } else {
+    el.innerHTML=active.map(obj=>{
+      const done=obj.steps.filter(s=>s.done).length,total=obj.steps.length;
+      const pct=total?Math.round(done/total*100):0;
+      const color=colors[obj.sphere]||'var(--gold)';
+      const allStepsDone=total>0&&done===total;
+      const stepsHtml=total?`<div class="obj-steps">${obj.steps.map((s,si)=>`<div class="step-item" onclick="toggleStep(${obj.id},${si})"><div class="step-cb ${s.done?'done':''}"></div><span style="${s.done?'text-decoration:line-through;opacity:.5':''}">${s.text}</span></div>`).join('')}</div>`:'';
+      const progressHtml=total?`<div style="font-size:12px;color:var(--text3);margin-bottom:4px">${pct}% — ${done}/${total} étapes</div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>`:'';
+      return`<div class="objectif-item" id="obj-${obj.id}">
+        <div class="obj-header">
+          <div class="obj-title">${obj.title}</div>
+          <div class="obj-sphere" style="color:${color};background:${color.replace(')',',0.12)').replace('var(','rgba(')}">${obj.sphere}</div>
+        </div>
+        ${progressHtml}
+        ${stepsHtml}
+        <div class="obj-actions">
+          <button class="obj-btn obj-btn-complete" onclick="completeObjectif(${obj.id})">✅ Marquer complété</button>
+          <button class="obj-btn obj-btn-delete" onclick="deleteObjectif(${obj.id})">🗑 Supprimer</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Completed
+  if(compCard)compCard.style.display=completed.length?'block':'none';
+  if(compEl){
+    compEl.innerHTML=completed.map(obj=>{
+      const done=obj.steps.filter(s=>s.done).length,total=obj.steps.length;
+      const pct=total?Math.round(done/total*100):100;
+      const color=colors[obj.sphere]||'var(--gold)';
+      const dateLabel=obj.completedDate?new Date(obj.completedDate+'T12:00').toLocaleDateString('fr-CA',{day:'numeric',month:'long'}):'';
+      const stepsHtml=total?`<div class="obj-steps" style="opacity:.6">${obj.steps.map(s=>`<div class="step-item"><div class="step-cb done"></div><span style="text-decoration:line-through;opacity:.5">${s.text}</span></div>`).join('')}</div>`:'';
+      return`<div class="objectif-item completed" id="obj-${obj.id}">
+        <div class="obj-header">
+          <div class="obj-title">${obj.title}</div>
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+            <div class="obj-sphere" style="color:${color};background:${color.replace(')',',0.12)').replace('var(','rgba(')}">${obj.sphere}</div>
+            <span class="obj-completed-badge">✓ Complété</span>
+          </div>
+        </div>
+        ${dateLabel?`<div style="font-size:11px;color:var(--green);margin-bottom:6px">Accompli le ${dateLabel}</div>`:''}
+        ${stepsHtml}
+        <div class="obj-actions">
+          <button class="obj-btn obj-btn-uncomplete" onclick="uncompleteObjectif(${obj.id})">↩ Réactiver</button>
+          <button class="obj-btn obj-btn-delete" onclick="deleteObjectif(${obj.id})">🗑 Supprimer</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
 }
-function toggleStep(oi,si){
-  state.objectifs[oi].steps[si].done=!state.objectifs[oi].steps[si].done;
-  const done=state.objectifs[oi].steps.filter(s=>s.done).length;
-  state.objectifs[oi].progress=done/state.objectifs[oi].steps.length*100;
-  if(state.objectifs[oi].steps[si].done)addXP(5,'Étape accomplie ! +5 XP');
+
+function toggleStep(objId,si){
+  const obj=state.objectifs.find(o=>o.id===objId);
+  if(!obj)return;
+  obj.steps[si].done=!obj.steps[si].done;
+  const done=obj.steps.filter(s=>s.done).length;
+  obj.progress=obj.steps.length?done/obj.steps.length*100:0;
+  if(obj.steps[si].done)addXP(5,'Étape accomplie ! +5 XP');
   renderObjectifs();save();
 }
 
@@ -2376,7 +2479,7 @@ function setupSportTags(){
 // ===== STATS =====
 function renderStats(){
   document.getElementById('stat-jours').textContent=state.totalDays||1;
-  document.getElementById('stat-objectifs').textContent=state.objectifs.length;
+  document.getElementById('stat-objectifs').textContent=state.objectifs.filter(o=>!o.completed).length;
   document.getElementById('stat-gratitudes').textContent=state.gratitudes.length;
 }
 
